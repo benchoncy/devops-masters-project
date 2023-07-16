@@ -1,0 +1,53 @@
+airflow:
+  image:
+    repository: apache/airflow
+    tag: 2.6.3-python3.10
+  executor: KubernetesExecutor
+  fernetKey: ${FERNET_KEY}
+  webserverSecretKey: ${WEB_SERVER_SECRET_KEY}
+  config:
+    AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+    AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL: "30"
+  users:
+    - username: admin
+      password: ${AIRFLOW_ADMIN_PASSWORD}
+      email: admin@example.com
+      role: Admin
+      firstName: admin
+      lastName: admin
+  connections: []
+  variables: []
+  pools:
+    - name: "default"
+      description: "default pool with 5 slots"
+      slots: 5
+  kubernetesPodTemplate:
+    resources:
+      requests:
+        cpu: ${WORKFLOW_CPU_ALLOCATION}
+        memory: ${WORKFLOW_MEMORY_ALLOCATION}
+      limits:
+        cpu: ${WORKFLOW_CPU_ALLOCATION}
+        memory: ${WORKFLOW_MEMORY_ALLOCATION}
+    podLabels:
+      orchestrator: "airflow"
+web:
+  service:
+    type: LoadBalancer
+    externalPort: 80
+workers:
+  enabled: false
+redis:
+  enabled: false
+flower:
+  enabled: false
+pgbouncer:
+  enabled: false
+postgresql:
+  enabled: false
+externalDatabase:
+  type: postgres
+  host: ${AIRFLOW_DB_HOST}
+  port: ${AIRFLOW_DB_PORT}
+  user: ${AIRFLOW_DB_USERNAME}
+  password: ${AIRFLOW_DB_PASSWORD}
