@@ -1,3 +1,5 @@
+# Shared EKS Cluster resources for all tools.
+
 # Create EKS cluster
 resource "aws_eks_cluster" "main" {
   depends_on = [ 

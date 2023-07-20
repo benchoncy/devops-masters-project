@@ -1,3 +1,5 @@
+# All config required to setup Airflow on EKS.
+
 locals {
   airflow_namespace = "airflow"
   airflow_values = {
@@ -16,7 +18,7 @@ locals {
 resource "helm_release" "airflow_community" {
   depends_on = [
     time_sleep.wait_for_cluster,
-    aws_rds_cluster_instance.serverless
+    aws_rds_cluster_instance.airflow
   ]
 
   name = "${local.project_name}-airflow-community"
@@ -62,7 +64,7 @@ resource "aws_rds_cluster" "airflow" {
   }
 }
 
-resource "aws_rds_cluster_instance" "serverless" {
+resource "aws_rds_cluster_instance" "airflow" {
   cluster_identifier   = aws_rds_cluster.airflow.id
   instance_class       = "db.serverless"
   engine               = aws_rds_cluster.airflow.engine

@@ -1,3 +1,5 @@
+# Common resources used by all tools.
+
 locals {
   workflow_cpu_allocation = "1"
   workflow_memory_allocation = "1GB"
