@@ -23,7 +23,9 @@ resource "helm_release" "airflow_community" {
 
   name = "${local.project_name}-airflow-community"
   namespace = local.airflow_namespace
-  chart = "https://github.com/airflow-helm/charts/releases/download/airflow-8.7.1/airflow-8.7.1.tgz"
+  repository = "https://airflow-helm.github.io/charts"
+  chart = "airflow"
+  version = "8.7.1"
   create_namespace = true
 
   values = [

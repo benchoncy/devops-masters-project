@@ -18,6 +18,7 @@ resource "helm_release" "argo_metaflow" {
   namespace = local.argo_namespace
   repository   = "https://argoproj.github.io/argo-helm"
   chart        = "argo-workflows"
+  version      = "0.32.0"
   create_namespace = true
   force_update = true
 

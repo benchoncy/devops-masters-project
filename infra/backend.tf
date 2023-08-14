@@ -3,6 +3,7 @@ locals {
 }
 
 variable "aws_region" {
+  type    = string
   default = "eu-west-1"
 }
 
@@ -26,14 +27,18 @@ terraform {
       source  = "hashicorp/kubernetes"
       version = "~> 2.22"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.1"
+    }
   }
 }
 
 provider "aws" {
-  region = "${var.aws_region}"
+  region = var.aws_region
   default_tags {
     tags = {
-      Project = "${local.project_name}"
+      Project = local.project_name
       Repo = "https://github.com/benchoncy/${local.project_name}"
       ManagedBy = "Terraform"
     }

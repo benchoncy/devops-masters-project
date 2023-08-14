@@ -66,6 +66,7 @@ resource "aws_eks_node_group" "main" {
     max_unavailable = 1
   }
 
+
   lifecycle {
     
   }
