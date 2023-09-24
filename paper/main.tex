@@ -1,0 +1,219 @@
+\documentclass[12pt]{article}
+
+% Set up data, if you need to add a package, go here
+\input{setup/packages.tex}
+
+\begin{document}
+
+
+\thispagestyle{empty}
+\setlength\headheight{0pt} 
+\begin{center}
+
+\begin{center}
+\includegraphics[width=0.65\linewidth]{images/TUD_Logo.png}            
+\end{center}	
+
+        \vspace{0.25cm}
+        {\scshape\LARGE TU Dublin, Tallaght Campus \par}
+        \vspace{0.25cm}
+        {\scshape\Large MSc DevOps Research Project\par}
+        \vspace{0.5cm}
+
+        {\Large\bfseries MLOps workflow tools comparision\par}
+        
+        \vspace{0.5cm}
+        {\Large\itshape Ben Stuart\par}
+        Department of Computing
+        \vspace{0.25cm}
+
+\vspace{1cm}
+Supervised by\par
+Dr. Jelena Vasic\\
+Department of Computing\par
+\vspace{1.5cm}
+\large
+\today
+
+\end{center}
+
+\clearpage
+\restoregeometry
+\justify
+
+\section*{Declaration}
+I hereby certify that the material, which I now submit for assessment on the programmes of study leading to the award of Master of Science, is entirely my own work and has not been taken from the work of others except to the extent that such work has been cited and acknowledged within the text of my own work. No portion of the work contained in this thesis has been submitted in support of an application for another degree or qualification to this or any other institution.
+
+\vspace{2cm}
+\begin{flushright}
+-----------------------------------\\
+Ben Stuart\\
+\today
+\end{flushright}
+\pagebreak
+
+\section*{Acknowledgements}
+Personal acknowledgements and/or dedications may be included by the candidate directly after the declaration page. Where possible these should be kept to one page and be of a tone appropriate to a higher degree.
+\pagebreak
+
+%List of figures and tables, automatic from thesis.
+\listoffigures
+\pagebreak
+ 
+\listoftables
+\pagebreak
+
+
+\tableofcontents
+\pagebreak
+
+\section*{Abstract}
+Present thesis abstract here, typically there are no references, figures or tables in the abstract.
+\pagebreak
+
+
+
+
+\section{Introduction}
+\subsection{Subsection Example}
+I am a subsection
+\subsubsection{Sub Subsection Example}
+I am a sub subsection
+\pagebreak
+
+
+
+
+\section{Literature Review}
+\subsection{Introduction to Citations}
+Citations can be obtained from IEEE explore, ACM digital library or Google Scholar (along with multiple other sources). The format that this thesis template uses is a BibTeX file. In this thesis example it is named bibliography.bib. Inside the .bib file you can simply copy and paste a BibTeX entry. This allows for easy entry into the thesis. You can also directly link it with you Mendeley library.
+
+To obtain a BibTeX entry in Google Scholar (Figure \ref{lab:scholarBibTeX}):
+\begin{figure}[ht!]
+ 	\centering
+ 	\caption{Referencing using BibTeX in Google Scholar}
+ 	\includegraphics[width=0.7\linewidth]{images/scholar.png}
+ 	\label{lab:scholarBibTeX}
+ \end{figure}
+ 
+ After selecting BibTex in Scholar, copy and paste the resulting BibTeX entry into the bibliography.bib file (Figure \ref{lab:BibTeX}):
+ 
+ \begin{figure}[ht!]
+ 	\centering
+ 	\caption{Scholar BibTeX}
+ 	\includegraphics[width=1\linewidth]{images/bibtex.png}
+ 	\label{lab:BibTeX}
+ \end{figure}
+
+
+
+
+\subsection{Example Citations}
+To reference a BibTeX entry (that is located in the bibliography.bib file), use:
+
+\begin{verbatim}
+    \cite{}
+\end{verbatim}
+
+This will present all of the citations in the BibTeX file. Once you select the reference, the Reference section will be automatically populated. Below is an example of using the BibTeX references:\\\\
+
+
+\cite{Quille2019} is a citation from an academic journal.\\\
+\cite{Quille:Gender} is a citation from a conference proceeding.
+
+
+
+\subsection{Further Reading}
+Overleaf documentation on Bibtex files: \\
+\url{https://tinyurl.com/yyabzfjb}
+
+\pagebreak
+
+
+
+
+\section{Method}
+\subsection{Referencing Tables and Figures}
+To reference a table or figure, you must include a label on the figure or table using: 
+\begin{verbatim}
+\label{}  
+\end{verbatim}
+To use or reference a label you use:
+\begin{verbatim}
+\ref{}
+\end{verbatim}
+Example:Table \ref{tab:pvalues} presents the \textit{p} values from test A, and Figure \ref{lab:perceptron} shows the architecture of a perceptron.
+
+
+
+
+\subsubsection{Sample Table}
+\begin{table}[ht!]
+\centering
+    
+	\caption{Comparison \textit{p} values}
+	\begin{tabular}{ |l|c|c|}	
+		\hline		
+		\textbf{Attribute} & \textbf{\textit{p-value}} & \textbf{Significant} \\ \hline
+		Model A	 & 0.0521 & N \\ \hline
+		Model B  & 0.6171 & N \\ \hline 
+		Model C  & <0.00001 & Y \\ \hline 
+	\end{tabular}
+	\label{tab:pvalues}
+\end{table} 
+
+
+\subsubsection{Sample Figure}
+\begin{figure}[ht!]
+ 	\centering
+ 	\caption{Perceptron (Artificial Neural Network)}
+ 	\includegraphics[width=0.7\linewidth]{images/ANN.jpg}
+ 	\label{lab:perceptron}
+ \end{figure}
+ 
+
+\subsection{Equation Example}
+Sample equations:
+
+\begin{equation}
+Accuracy = \frac{(TP + TN)}{(TP + TN + FP + FN)}
+\end{equation}
+
+
+\begin{equation}
+Sensitivity = \frac{TP}{TP + FN}
+\end{equation}
+
+\begin{equation}
+Specificity = \frac{TN}{TN + FP}
+\end{equation}
+
+\pagebreak
+
+
+
+\section{Results}
+
+
+\pagebreak
+
+
+
+
+
+\section{Discussion}
+\pagebreak
+
+
+\section{Conclusions}
+\pagebreak
+
+
+\section{Appendices}
+\pagebreak
+
+
+%prints bibliography from bibliography file.
+\printbibliography
+
+\end{document}
