@@ -68,11 +68,8 @@ Personal acknowledgements and/or dedications may be included by the candidate di
 \pagebreak
 
 \section*{Abstract}
-Present thesis abstract here, typically there are no references, figures or tables in the abstract.
+This research project aims to analyse and compare tools and approaches to constructing and orchestrating machine learning workflow pipelines. These pipelines are often used for continuous training and other machine-learning tasks in an MLOps context to automate and orchestrate model training and delivery and simplify experimentation and troubleshooting. The proposed paper will focus on Metaflow, Apache Airflow and SageMaker pipelines tools and the techniques they employ to build and orchestrate pipelines in AWS.
 \pagebreak
-
-
-
 
 \section{Introduction}
 \subsection{Subsection Example}
@@ -81,137 +78,34 @@ I am a subsection
 I am a sub subsection
 \pagebreak
 
-
-
-
 \section{Literature Review}
-\subsection{Introduction to Citations}
-Citations can be obtained from IEEE explore, ACM digital library or Google Scholar (along with multiple other sources). The format that this thesis template uses is a BibTeX file. In this thesis example it is named bibliography.bib. Inside the .bib file you can simply copy and paste a BibTeX entry. This allows for easy entry into the thesis. You can also directly link it with you Mendeley library.
+DevOps is a set of principles and practices aimed at improving the lifecycle of software applications and bridging the gap between IT operations and software development teams. DevOps as a practice leads to higher velocity, more automation and faster feedback \citep{kimPhoenixProjectNovel2018, kimDevOpsHandbookHow2016, humbleContinuousDeliveryReliable2010, kreuzbergerMachineLearningOperations2022}
 
-To obtain a BibTeX entry in Google Scholar (Figure \ref{lab:scholarBibTeX}):
-\begin{figure}[ht!]
- 	\centering
- 	\caption{Referencing using BibTeX in Google Scholar}
- 	\includegraphics[width=0.7\linewidth]{images/scholar.png}
- 	\label{lab:scholarBibTeX}
- \end{figure}
- 
- After selecting BibTex in Scholar, copy and paste the resulting BibTeX entry into the bibliography.bib file (Figure \ref{lab:BibTeX}):
- 
- \begin{figure}[ht!]
- 	\centering
- 	\caption{Scholar BibTeX}
- 	\includegraphics[width=1\linewidth]{images/bibtex.png}
- 	\label{lab:BibTeX}
- \end{figure}
+Machine Learning refers to the application of learning algorithms on specific datasets. The resulting model can then be used to take input and infer new data based on data previously seen. Common applications of machine learning include recommendation systems, future prediction, classification and content generation. The typical producer and users of machine learning are Data Scientists, Analysts or ML Engineers using the resulting models for internal use, research or building client-facing applications. \citep{polyzotisDataManagementChallenges2017, helmMachineLearningArtificial2020}
 
+Machine Learning Operation (MLOps) is the application of DevOps principles and practices to Machine Learning (ML) \citep{kreuzbergerMachineLearningOperations2022, shankarOperationalizingMachineLearning2022, zhouMLOpsCaseStudy2020}. A concrete consensus on the definition of MLOps is still unresolved; many ML studies are focused on the performance and building of models. MLOps brings an opportunity to focus on productionising and operating ML and its lifecycle as others have achieved in software development with DevOps \citep{kreuzbergerMachineLearningOperations2022, shankarOperationalizingMachineLearning2022}. Recent studies have shown increased interest in operating ML, infrastructure, and rapid deployment of ML in the community \citep{makinenWhoNeedsMLOps2021}.
 
+One common practice of MLOps includes \textit{Continous Trainng} (CT); similar to Continous Integration and Continous Deployment (CD/CD), Continous training is the practice of building the required steps to train a model into a pipeline that can be run on a dedicated server to be automated, repeatable and democratised so that models can be trained and re-trained on-demand, on-schedule or on a trigger \citep{humbleContinuousDeliveryReliable2010, kimPhoenixProjectNovel2018, googleMLOpsContinuousDelivery2023, giftPracticalMLOpsOperationalizing2021, zhouMLOpsCaseStudy2020}.
 
+Continuous Training pipelines are often written as \textit{Machine Learning pipelines} (MLP), sometimes referred to as \textit{ML workflow pipelines}. These pipelines are written as discrete interdependent steps, forming a directed acyclical graph (DAG) \citep{muiruriPracticesInfrastructuresMachine2022, zhouMLOpsCaseStudy2020}. ML tasks may often require large amounts of computing resources \citep{tuulosEffectiveDataScience2022, muiruriPracticesInfrastructuresMachine2022}. Writing workflows in this way allows these workflows to be orchestrated on distributed systems, re-run steps independently, and utilise available compute resources efficiently \citep{fowlerContinuousDeliveryMachine2019, muiruriPracticesInfrastructuresMachine2022}.
 
-\subsection{Example Citations}
-To reference a BibTeX entry (that is located in the bibliography.bib file), use:
-
-\begin{verbatim}
-    \cite{}
-\end{verbatim}
-
-This will present all of the citations in the BibTeX file. Once you select the reference, the Reference section will be automatically populated. Below is an example of using the BibTeX references:\\\\
-
-
-\cite{Quille2019} is a citation from an academic journal.\\\
-\cite{Quille:Gender} is a citation from a conference proceeding.
-
-
-
-\subsection{Further Reading}
-Overleaf documentation on Bibtex files: \\
-\url{https://tinyurl.com/yyabzfjb}
-
+MLPs are used to perform general ML tasks, including continuous training, feature engineering or periodic model evaluations, especially where tasks require long-running jobs, large amounts of compute or automated orchestration \citep{shankarOperationalizingMachineLearning2022, tuulosEffectiveDataScience2022, kreuzbergerMachineLearningOperations2022}. Several MLP frameworks, libraries and services appear in the literature (Kubeflow pipelines, Metaflow, TensorFlow Extended (TFX), AWS SageMaker pipelines, Apache Airflow, Prefect, Luigi). These tools often have some common characteristics and methods, such as constructing DAG objects using a library or framework, encapsulating steps in containers, storing run metadata and translating these DAGs onto battle-tested orchestration platforms such as Argo Workflows, AWS Batch or Apache Airflow \citep{tagliabueReasonableScaleMachine2023, tuulosEffectiveDataScience2022, muiruriPracticesInfrastructuresMachine2022}. These tools best practices and features are rarely discussed in the current literature, leaving a gap where no consensus has been formed regarding individual features and methods' benefits or drawbacks for ML workflows.
 \pagebreak
 
-
-
-
-\section{Method}
-\subsection{Referencing Tables and Figures}
-To reference a table or figure, you must include a label on the figure or table using: 
-\begin{verbatim}
-\label{}  
-\end{verbatim}
-To use or reference a label you use:
-\begin{verbatim}
-\ref{}
-\end{verbatim}
-Example:Table \ref{tab:pvalues} presents the \textit{p} values from test A, and Figure \ref{lab:perceptron} shows the architecture of a perceptron.
-
-
-
-
-\subsubsection{Sample Table}
-\begin{table}[ht!]
-\centering
-    
-	\caption{Comparison \textit{p} values}
-	\begin{tabular}{ |l|c|c|}	
-		\hline		
-		\textbf{Attribute} & \textbf{\textit{p-value}} & \textbf{Significant} \\ \hline
-		Model A	 & 0.0521 & N \\ \hline
-		Model B  & 0.6171 & N \\ \hline 
-		Model C  & <0.00001 & Y \\ \hline 
-	\end{tabular}
-	\label{tab:pvalues}
-\end{table} 
-
-
-\subsubsection{Sample Figure}
-\begin{figure}[ht!]
- 	\centering
- 	\caption{Perceptron (Artificial Neural Network)}
- 	\includegraphics[width=0.7\linewidth]{images/ANN.jpg}
- 	\label{lab:perceptron}
- \end{figure}
- 
-
-\subsection{Equation Example}
-Sample equations:
-
-\begin{equation}
-Accuracy = \frac{(TP + TN)}{(TP + TN + FP + FN)}
-\end{equation}
-
-
-\begin{equation}
-Sensitivity = \frac{TP}{TP + FN}
-\end{equation}
-
-\begin{equation}
-Specificity = \frac{TN}{TN + FP}
-\end{equation}
-
+\section{Methodology}
 \pagebreak
-
-
 
 \section{Results}
-
-
 \pagebreak
-
-
-
-
 
 \section{Discussion}
 \pagebreak
 
-
 \section{Conclusions}
 \pagebreak
 
-
 \section{Appendices}
 \pagebreak
-
 
 %prints bibliography from bibliography file.
 \printbibliography
