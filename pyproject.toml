@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "main"
+version = "0.1.0"
+description = ""
+authors = ["Ben Stuart <ben@benstuart.ie>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+opentelemetry-api = "^1.20.0"
+opentelemetry-sdk = "^1.20.0"
+metaflow = "^2.9.15"
+psutil = "^5.9.5"
+py-cpuinfo = "^9.0.0"
+botocore = "^1.31.22"
+boto3 = "^1.28.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,137 @@
+[MFLOG|0|2023-10-01T19:25:13.168495Z|runtime|ebd071ba-c783-4de6-a773-29d92de2c29e]{
+[MFLOG|0|2023-10-01T19:25:13.168711Z|runtime|9588bfd0-e74c-4f82-ac20-244db8de1d4c]    "resource_metrics": [
+[MFLOG|0|2023-10-01T19:25:13.168814Z|runtime|a60a2b10-d31a-4651-baf7-66a8e4d0c607]        {
+[MFLOG|0|2023-10-01T19:25:13.168853Z|runtime|ca0b6ce0-ce88-4681-8ad5-f376a7539c9a]            "resource": {
+[MFLOG|0|2023-10-01T19:25:13.168880Z|runtime|2a3d488a-a4ad-4079-9138-49f656700eb6]                "attributes": {
+[MFLOG|0|2023-10-01T19:25:13.168917Z|runtime|2bd3ff9a-f06f-4853-8381-71fc6af5c6f5]                    "telemetry.sdk.language": "python",
+[MFLOG|0|2023-10-01T19:25:13.168943Z|runtime|b8d05a29-90b0-4817-a3e9-1673c2277714]                    "telemetry.sdk.name": "opentelemetry",
+[MFLOG|0|2023-10-01T19:25:13.168968Z|runtime|ec5c2907-7a5c-46dd-90ef-60f666f2d81a]                    "telemetry.sdk.version": "1.20.0",
+[MFLOG|0|2023-10-01T19:25:13.168991Z|runtime|1f334a20-d386-4fe0-bc02-6f821020fd3a]                    "service.name": "system-metrics",
+[MFLOG|0|2023-10-01T19:25:13.169015Z|runtime|e3cf4e7b-bcfd-44a3-a266-2647441eb4e5]                    "experiment.id": "image-captioning",
+[MFLOG|0|2023-10-01T19:25:13.169042Z|runtime|24cf508c-6360-4ed6-977a-068caf08d43d]                    "experiment.step.id": "dataset_perperation",
+[MFLOG|0|2023-10-01T19:25:13.169066Z|runtime|ba1f3e89-92bf-4f45-8a68-0559e12053c6]                    "system.cpu.brand": "Apple M1 Pro",
+[MFLOG|0|2023-10-01T19:25:13.169090Z|runtime|b1159655-504b-4f68-9256-c96aa45ea3ad]                    "system.cpu.cores": 8,
+[MFLOG|0|2023-10-01T19:25:13.169115Z|runtime|abb5bf49-e8ae-40e9-b2f0-5334b056b6ff]                    "system.memory.total": 16.0,
+[MFLOG|0|2023-10-01T19:25:13.169141Z|runtime|be90b67c-b827-48ad-87a5-7e8507c30f38]                    "system.disk.total": 460.4317207336426
+[MFLOG|0|2023-10-01T19:25:13.169165Z|runtime|48f5c28e-9d4b-4a2b-8a0d-c28f86f70a52]                },
+[MFLOG|0|2023-10-01T19:25:13.169190Z|runtime|9f4909d3-069f-429c-8bba-5aeae1c58a3f]                "schema_url": ""
+[MFLOG|0|2023-10-01T19:25:13.169214Z|runtime|c7b152cf-1cfe-4fad-bf5c-96494a9c0cee]            },
+[MFLOG|0|2023-10-01T19:25:13.169238Z|runtime|f519fbdc-b25d-4937-915e-748d42833152]            "scope_metrics": [
+[MFLOG|0|2023-10-01T19:25:13.169265Z|runtime|971bc4c7-e06f-4037-b49f-13a811494ef2]                {
+[MFLOG|0|2023-10-01T19:25:13.169288Z|runtime|9947f070-fb98-46b7-be54-3f2d6051c2b3]                    "scope": {
+[MFLOG|0|2023-10-01T19:25:13.169313Z|runtime|22402525-8b6f-415d-a814-b8c8add009f1]                        "name": "image-captioning.dataset_perperation",
+[MFLOG|0|2023-10-01T19:25:13.169337Z|runtime|90802903-5221-41be-8458-0b731e03d259]                        "version": "",
+[MFLOG|0|2023-10-01T19:25:13.169363Z|runtime|daf0c572-4713-458f-ae64-e9a11b1010aa]                        "schema_url": ""
+[MFLOG|0|2023-10-01T19:25:13.169388Z|runtime|d1eb8635-0f41-433f-91c8-66698a749a83]                    },
+[MFLOG|0|2023-10-01T19:25:13.169413Z|runtime|4fd1a0dc-4c5f-41f0-9e03-2cf2fe4592f8]                    "metrics": [
+[MFLOG|0|2023-10-01T19:25:13.169437Z|runtime|e99b476e-7156-4d2e-b773-6f92d1a527b1]                        {
+[MFLOG|0|2023-10-01T19:25:13.169460Z|runtime|1e537840-63da-4bd6-b904-5ce2ada9eb23]                            "name": "cpu_percent",
+[MFLOG|0|2023-10-01T19:25:13.169486Z|runtime|dd8d896f-2402-4849-8191-f2dd57b73e9d]                            "description": "CPU usage in percent",
+[MFLOG|0|2023-10-01T19:25:13.169509Z|runtime|1cb9afa4-0005-4453-87a7-ccf71d082ca2]                            "unit": "1",
+[MFLOG|0|2023-10-01T19:25:13.169533Z|runtime|e21b9def-cd1c-4293-816e-8e1d65867ad2]                            "data": {
+[MFLOG|0|2023-10-01T19:25:13.169557Z|runtime|f8735e1b-6e0c-487a-984b-fa9bb5699ec5]                                "data_points": [
+[MFLOG|0|2023-10-01T19:25:13.169581Z|runtime|23a2cead-7c8e-4e59-aee4-e5e2380706ff]                                    {
+[MFLOG|0|2023-10-01T19:25:13.169606Z|runtime|430771bf-67c1-487b-925d-df371caf2161]                                        "attributes": {},
+[MFLOG|0|2023-10-01T19:25:13.169630Z|runtime|8d1e09af-6abf-4b14-82f3-5f2e8eb2a9a8]                                        "start_time_unix_nano": 0,
+[MFLOG|0|2023-10-01T19:25:13.169654Z|runtime|b2248bd3-6809-47a8-a277-9b45e39f704a]                                        "time_unix_nano": 1696188313167763000,
+[MFLOG|0|2023-10-01T19:25:13.169679Z|runtime|41399db3-eebc-4f1e-bfc9-a6a55c50f0cf]                                        "value": 35.2
+[MFLOG|0|2023-10-01T19:25:13.169705Z|runtime|4abcc476-5f21-460f-a32f-bdc1c9af54ac]                                    }
+[MFLOG|0|2023-10-01T19:25:13.169729Z|runtime|19f9490f-807a-4163-bf5e-568b35c13dfd]                                ]
+[MFLOG|0|2023-10-01T19:25:13.169752Z|runtime|ff84a3f4-8887-42c5-9222-eaa0f8706903]                            }
+[MFLOG|0|2023-10-01T19:25:13.169776Z|runtime|eddc50a0-673d-445b-ad33-68369e4e32c2]                        },
+[MFLOG|0|2023-10-01T19:25:13.169800Z|runtime|d1a7d087-9fe3-4e25-a06c-1ed2a284de65]                        {
+[MFLOG|0|2023-10-01T19:25:13.169825Z|runtime|e744a60c-1dba-4e95-b972-169979f0505d]                            "name": "memory_percent",
+[MFLOG|0|2023-10-01T19:25:13.169849Z|runtime|38244b73-8204-4873-86e7-b94505fcd8bc]                            "description": "Memory usage in percent",
+[MFLOG|0|2023-10-01T19:25:13.169872Z|runtime|21dccd15-1701-4f44-8992-969b2e5c6f38]                            "unit": "1",
+[MFLOG|0|2023-10-01T19:25:13.169897Z|runtime|02ef478e-3d15-4ebc-a0ad-646e5299ca63]                            "data": {
+[MFLOG|0|2023-10-01T19:25:13.169922Z|runtime|0aeaa42b-c981-47e9-b243-d2aab22a43ea]                                "data_points": [
+[MFLOG|0|2023-10-01T19:25:13.169947Z|runtime|30d1f7d1-72df-4e26-a4b1-5b2593c7a6b7]                                    {
+[MFLOG|0|2023-10-01T19:25:13.169973Z|runtime|a6cb4b61-85dc-4af1-be21-0caa8199f688]                                        "attributes": {},
+[MFLOG|0|2023-10-01T19:25:13.169997Z|runtime|a735cd4e-b6ae-4941-8a16-8915893538e2]                                        "start_time_unix_nano": 0,
+[MFLOG|0|2023-10-01T19:25:13.170021Z|runtime|fcce4c76-5471-41ca-8c80-59f586e61c96]                                        "time_unix_nano": 1696188313167763000,
+[MFLOG|0|2023-10-01T19:25:13.170046Z|runtime|56e18fd7-b0f8-4bd6-8af7-5d9a7c82d11e]                                        "value": 78.7
+[MFLOG|0|2023-10-01T19:25:13.170072Z|runtime|ca29a36c-be3e-484d-8e00-d8059f2252ef]                                    }
+[MFLOG|0|2023-10-01T19:25:13.170097Z|runtime|ffc92f8c-9700-4ea5-a27c-769ae2fc609a]                                ]
+[MFLOG|0|2023-10-01T19:25:13.170123Z|runtime|61ffa4b2-4a2c-460d-9aad-47e879222e6a]                            }
+[MFLOG|0|2023-10-01T19:25:13.170147Z|runtime|30ac2d05-98ae-4dc4-ae8f-7591555e9d04]                        },
+[MFLOG|0|2023-10-01T19:25:13.170170Z|runtime|dccca21d-9b0f-4561-9911-c0a0ecc2a937]                        {
+[MFLOG|0|2023-10-01T19:25:13.170193Z|runtime|8fd531c4-e912-4893-9eae-9222df22e60b]                            "name": "disk_percent",
+[MFLOG|0|2023-10-01T19:25:13.170218Z|runtime|de7f8cb9-07a0-4596-9c85-ef43849b3b02]                            "description": "Disk usage in percent",
+[MFLOG|0|2023-10-01T19:25:13.170244Z|runtime|505e47d2-e341-4932-8c92-871627cec3b8]                            "unit": "1",
+[MFLOG|0|2023-10-01T19:25:13.170267Z|runtime|ee9eb753-7383-4a11-9700-63a342dc7ed7]                            "data": {
+[MFLOG|0|2023-10-01T19:25:13.170293Z|runtime|62fc0963-9660-4df3-bc0b-02435d5d6c5b]                                "data_points": [
+[MFLOG|0|2023-10-01T19:25:13.170317Z|runtime|f6ce2be0-4c9c-4df2-9dfb-0c3e15621407]                                    {
+[MFLOG|0|2023-10-01T19:25:13.170341Z|runtime|8f9f9b2d-9ac3-41a6-8c3d-10c0aa751e15]                                        "attributes": {},
+[MFLOG|0|2023-10-01T19:25:13.170365Z|runtime|963e3445-9d5d-4440-87c3-8ffb2000d80b]                                        "start_time_unix_nano": 0,
+[MFLOG|0|2023-10-01T19:25:13.170390Z|runtime|5dc1d77c-0e0b-494d-8017-9d4e9c889242]                                        "time_unix_nano": 1696188313167763000,
+[MFLOG|0|2023-10-01T19:25:13.170413Z|runtime|6c6f3140-010b-4493-9d7a-21fc78e347c9]                                        "value": 3.6
+[MFLOG|0|2023-10-01T19:25:13.170441Z|runtime|c9893188-e27b-41fd-adc9-dfe2012e3ff4]                                    }
+[MFLOG|0|2023-10-01T19:25:13.170466Z|runtime|6dd8a0d0-7a78-40b4-a9be-d94ff2f385e7]                                ]
+[MFLOG|0|2023-10-01T19:25:13.170490Z|runtime|c1d799b3-2691-49ca-8bdb-db5d30656c3b]                            }
+[MFLOG|0|2023-10-01T19:25:13.170515Z|runtime|3ebf9190-6364-46b6-9494-bcb6354c8887]                        },
+[MFLOG|0|2023-10-01T19:25:13.170541Z|runtime|00912fa1-57fe-447e-a4b2-e62dfdbb3225]                        {
+[MFLOG|0|2023-10-01T19:25:13.170567Z|runtime|cc37afc2-a1c9-4ed7-91ab-b6a827e4c626]                            "name": "disk_iops",
+[MFLOG|0|2023-10-01T19:25:13.170594Z|runtime|938d897b-8dda-4b91-bab0-9498bd02c0b7]                            "description": "Disk IOPS",
+[MFLOG|0|2023-10-01T19:25:13.170636Z|runtime|22f02ab5-6a3a-41a9-ad0e-11b9eeba120e]                            "unit": "IOPS",
+[MFLOG|0|2023-10-01T19:25:13.170660Z|runtime|a14329c6-7d8a-4e78-83c3-88cbf4e05786]                            "data": {
+[MFLOG|0|2023-10-01T19:25:13.170685Z|runtime|9a2dcb2d-086d-4bc3-bc32-734d41cfdeda]                                "data_points": [
+[MFLOG|0|2023-10-01T19:25:13.170712Z|runtime|0090b593-189a-4d0d-8f0e-49b95fd6ef47]                                    {
+[MFLOG|0|2023-10-01T19:25:13.170736Z|runtime|c3adab10-8b66-4747-8e63-57951821cfca]                                        "attributes": {},
+[MFLOG|0|2023-10-01T19:25:13.170760Z|runtime|f45f3cc1-0f92-448e-a9c5-774711c81275]                                        "start_time_unix_nano": 0,
+[MFLOG|0|2023-10-01T19:25:13.170785Z|runtime|ac2d2a87-6ab7-4f11-8bfb-953147c5788b]                                        "time_unix_nano": 1696188313167763000,
+[MFLOG|0|2023-10-01T19:25:13.170810Z|runtime|a33abc59-05ec-499a-a5d3-84f935a436b6]                                        "value": 12355816
+[MFLOG|0|2023-10-01T19:25:13.170834Z|runtime|ab1b0cb2-f690-4df3-8474-9e1a4bb46647]                                    }
+[MFLOG|0|2023-10-01T19:25:13.170857Z|runtime|d62eaf2c-e97b-4fda-808c-c283260b784b]                                ]
+[MFLOG|0|2023-10-01T19:25:13.170882Z|runtime|b1e1ab29-9e77-4d0a-bcc5-6bc348ab38a3]                            }
+[MFLOG|0|2023-10-01T19:25:13.170906Z|runtime|965b2e6a-ea25-452c-8209-10514d6c1ab7]                        },
+[MFLOG|0|2023-10-01T19:25:13.170930Z|runtime|98662b8b-3cb0-48fd-9911-b334899b91dc]                        {
+[MFLOG|0|2023-10-01T19:25:13.170953Z|runtime|b9d770ee-cfbd-4573-9c48-490d27b720e1]                            "name": "network_iops",
+[MFLOG|0|2023-10-01T19:25:13.170977Z|runtime|2f4c5382-a921-4074-9c93-5bc8309afae9]                            "description": "Network IOPS",
+[MFLOG|0|2023-10-01T19:25:13.171001Z|runtime|9359b706-8631-47b1-a4f2-97056dd21cec]                            "unit": "IOPS",
+[MFLOG|0|2023-10-01T19:25:13.171026Z|runtime|4c8a1de2-00c4-4e69-b3c8-9bf0c09f6e71]                            "data": {
+[MFLOG|0|2023-10-01T19:25:13.171051Z|runtime|c1fe2b6d-af7f-4c48-9de5-262ec7f35e28]                                "data_points": [
+[MFLOG|0|2023-10-01T19:25:13.171074Z|runtime|bb1b26ac-690a-4eaf-b4c1-66ead1694f25]                                    {
+[MFLOG|0|2023-10-01T19:25:13.171098Z|runtime|79f3d143-7b14-4b38-9c5e-3a3922fac8bf]                                        "attributes": {},
+[MFLOG|0|2023-10-01T19:25:13.171121Z|runtime|5141d978-9822-460c-bc40-10a16cc085bc]                                        "start_time_unix_nano": 0,
+[MFLOG|0|2023-10-01T19:25:13.171144Z|runtime|5ec631ed-4435-4572-a9a9-0dd0c1a728e0]                                        "time_unix_nano": 1696188313167763000,
+[MFLOG|0|2023-10-01T19:25:13.171168Z|runtime|8b52d6cd-0cb1-451f-aa49-5b6c82f39c2f]                                        "value": 3645328
+[MFLOG|0|2023-10-01T19:25:13.171192Z|runtime|4a0741d3-f54d-4fec-8f09-c9783e011770]                                    }
+[MFLOG|0|2023-10-01T19:25:13.171217Z|runtime|a5419a56-2fe4-478e-b15a-2a2e21385474]                                ]
+[MFLOG|0|2023-10-01T19:25:13.171241Z|runtime|88a12e6f-a2ce-45f7-8dc1-2f13e0ce94e3]                            }
+[MFLOG|0|2023-10-01T19:25:13.171264Z|runtime|41f68321-71cf-4398-a790-c0eae538dd9d]                        }
+[MFLOG|0|2023-10-01T19:25:13.171289Z|runtime|eeb098a3-a578-4735-84bc-05bb58abc1ac]                    ],
+[MFLOG|0|2023-10-01T19:25:13.171312Z|runtime|eb696be9-b1ce-4ffb-82e6-6a515411a1c8]                    "schema_url": ""
+[MFLOG|0|2023-10-01T19:25:13.171337Z|runtime|3cf10557-464d-4b12-97d7-648d66aad50d]                }
+[MFLOG|0|2023-10-01T19:25:13.171360Z|runtime|c9e3635c-e841-42a4-ae5c-c7d6b5d4c997]            ],
+[MFLOG|0|2023-10-01T19:25:13.171384Z|runtime|d6acb541-b1e6-4cfc-b361-994349e01690]            "schema_url": ""
+[MFLOG|0|2023-10-01T19:25:13.171407Z|runtime|8d724e7c-5636-443a-87c5-e9f5cc81ca39]        }
+[MFLOG|0|2023-10-01T19:25:13.171431Z|runtime|4545171d-795c-4bc8-9b79-d9291d9a0fa0]    ]
+[MFLOG|0|2023-10-01T19:25:13.171456Z|runtime|2b036c18-cca1-4883-af80-c0c8c64837c7]}
+[MFLOG|0|2023-10-01T19:25:13.171481Z|runtime|016d5ee4-5ef1-4d20-97b6-f6ea4b3518aa]{
+[MFLOG|0|2023-10-01T19:25:13.204894Z|runtime|2836f27e-bd46-4001-afd0-687fb9d084f3]    "name": "dataset_perperation",
+[MFLOG|0|2023-10-01T19:25:13.204983Z|runtime|d5db1ac9-f745-47a3-b419-24c0af308b13]    "context": {
+[MFLOG|0|2023-10-01T19:25:13.205007Z|runtime|4df5b992-51f7-4786-9114-6dbaed721ff5]        "trace_id": "0x4a789e249010d35ecae07e10fa7ae27e",
+[MFLOG|0|2023-10-01T19:25:13.205027Z|runtime|ec191461-104d-4da4-9faf-ab6e2ea1f1a1]        "span_id": "0xab159762f2144a84",
+[MFLOG|0|2023-10-01T19:25:13.205047Z|runtime|e63d494f-fe41-446a-a575-773ca2bcf29f]        "trace_state": "[]"
+[MFLOG|0|2023-10-01T19:25:13.205069Z|runtime|69dade02-074a-40dc-aeb9-821dc2dde984]    },
+[MFLOG|0|2023-10-01T19:25:13.205092Z|runtime|7e4be4af-80b8-4785-b715-425e7052663c]    "kind": "SpanKind.INTERNAL",
+[MFLOG|0|2023-10-01T19:25:13.205113Z|runtime|0a17f570-d418-4314-a74c-29c561a09223]    "parent_id": null,
+[MFLOG|0|2023-10-01T19:25:13.205133Z|runtime|7b431046-2219-4889-a961-1f4b842bb9f4]    "start_time": "2023-10-01T19:25:13.095931Z",
+[MFLOG|0|2023-10-01T19:25:13.205153Z|runtime|b42c7262-20c6-421e-bfdf-95217855d108]    "end_time": "2023-10-01T19:25:13.163449Z",
+[MFLOG|0|2023-10-01T19:25:13.205173Z|runtime|134c8f6a-731b-4543-9fd0-ee64342d0d48]    "status": {
+[MFLOG|0|2023-10-01T19:25:13.205193Z|runtime|cd8dcceb-46e8-45ba-8e9c-c8c37b90ce1a]        "status_code": "UNSET"
+[MFLOG|0|2023-10-01T19:25:13.205214Z|runtime|3b27f3be-2830-4ad5-9423-d5c60a05ec6d]    },
+[MFLOG|0|2023-10-01T19:25:13.205236Z|runtime|8c927d9f-7b35-4b6a-8342-629f4e50bf6e]    "attributes": {},
+[MFLOG|0|2023-10-01T19:25:13.205255Z|runtime|b4da36e3-3b88-4917-87e7-13f72865924c]    "events": [],
+[MFLOG|0|2023-10-01T19:25:13.205277Z|runtime|5a8f3677-55e8-4237-8f07-b5ae5bf90992]    "links": [],
+[MFLOG|0|2023-10-01T19:25:13.205297Z|runtime|3f406e78-1233-4f58-bd15-80ac237df458]    "resource": {
+[MFLOG|0|2023-10-01T19:25:13.205317Z|runtime|9554ed94-e613-4563-b886-62e91ffbc77a]        "attributes": {
+[MFLOG|0|2023-10-01T19:25:13.205336Z|runtime|8ca7eae1-0fd4-41ce-bdf8-51a44a9018ca]            "telemetry.sdk.language": "python",
+[MFLOG|0|2023-10-01T19:25:13.205356Z|runtime|11ec86f4-7ffd-4a3a-a7cc-6266900ae785]            "telemetry.sdk.name": "opentelemetry",
+[MFLOG|0|2023-10-01T19:25:13.205377Z|runtime|ec7a93f1-ce94-437d-99f5-1b3d165deede]            "telemetry.sdk.version": "1.20.0",
+[MFLOG|0|2023-10-01T19:25:13.205397Z|runtime|01c0a884-ac41-4669-8878-7d912a81484e]            "service.name": "system-traces",
+[MFLOG|0|2023-10-01T19:25:13.205417Z|runtime|7789deb8-7d22-4ff2-9f89-f2259da8148c]            "experiment.id": "image-captioning"
+[MFLOG|0|2023-10-01T19:25:13.205437Z|runtime|f85e09e9-df75-4384-ad58-b47fdbfae179]        },
+[MFLOG|0|2023-10-01T19:25:13.205457Z|runtime|b676d8b2-9b47-4d1e-861d-5d8da6cf11c3]        "schema_url": ""
+[MFLOG|0|2023-10-01T19:25:13.205480Z|runtime|ce782b14-2173-4658-ae9a-445aea8a2ac7]    }
+[MFLOG|0|2023-10-01T19:25:13.205500Z|runtime|d028f748-0169-4b4f-b64e-ef479a34cf6b]}

@@ -1,0 +1,1 @@
+{"flow_id": "ExperimentFlow", "run_number": "1696188312414523", "step_name": "end", "task_id": "4", "field_name": "ds-root", "type": "ds-root", "value": "/Users/bstuart/Projects/benchoncy-devops-masters-project.tree/main/.metaflow", "tags": ["attempt_id:0"], "user_name": "bstuart", "ts_epoch": 1696188313852}
