@@ -37,3 +37,19 @@ terraform.rc
 
 # Ignore MacOS folder attributes
 .DS_Store
+
+# Metaflow
+**/.metaflow/
+
+# LaTeX
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.toc
+*.pdf
+*.pdf_tex

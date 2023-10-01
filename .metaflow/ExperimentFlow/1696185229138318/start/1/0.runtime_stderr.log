@@ -1,5 +1,0 @@
-[MFLOG|0|2023-10-01T18:33:49.329649Z|runtime|54845685-22ee-40be-8532-36826590097a]Traceback (most recent call last):
-[MFLOG|0|2023-10-01T18:33:49.361505Z|runtime|77ef40c9-544a-4862-8fc6-61a4e3749f3b]  File "/Users/bstuart/Projects/benchoncy-devops-masters-project.tree/main/src/pipelines/metaflow/flow.py", line 2, in <module>
-[MFLOG|0|2023-10-01T18:33:49.361679Z|runtime|599a2201-2f84-458f-ab65-b2781cce4626]    from ...instrumentation.core import setup_traces, setup_metrics
-[MFLOG|0|2023-10-01T18:33:49.361707Z|runtime|674044a4-e339-400e-8b4b-a43664f40b88]ImportError: attempted relative import with no known parent package
-[MFLOG|0|2023-10-01T18:33:49.362132Z|runtime|002ec5ff-5a93-41f1-923d-076ad6a91319]Task failed.

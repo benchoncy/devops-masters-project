@@ -1,5 +1,0 @@
-[MFLOG|0|2023-10-01T18:41:56.600607Z|runtime|33b1fa46-56bb-4c64-bd37-26eed4f7e08d]Traceback (most recent call last):
-[MFLOG|0|2023-10-01T18:41:56.632515Z|runtime|7e4c4498-cfb9-428d-b425-7786d3f25a75]  File "/Users/bstuart/Projects/benchoncy-devops-masters-project.tree/main/src/pipelines/metaflow/flow.py", line 2, in <module>
-[MFLOG|0|2023-10-01T18:41:56.632683Z|runtime|2ae6e794-f5de-4847-aef3-1624d9ee7fbb]    from src.instrumentation.core import setup_traces, setup_metrics
-[MFLOG|0|2023-10-01T18:41:56.632710Z|runtime|1fc44321-d999-460f-b727-3f31ed597330]ModuleNotFoundError: No module named 'src'
-[MFLOG|0|2023-10-01T18:41:56.633145Z|runtime|526e9088-3042-4402-a6ec-2a9eeb6c6f45]Task failed.
