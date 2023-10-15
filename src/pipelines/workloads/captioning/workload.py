@@ -6,34 +6,6 @@ from tqdm import tqdm
 from src.pipelines.utils import S3ImageLoader
 
 
-S3_BUCKET_NAME = 'bstuart-image-captioning-dataset'
-
-
-def main():
-    # Load the model
-    model, image_processor, tokenizer = load_models()
-
-    # Load the images
-    image_loader = S3ImageLoader(bucket_name=S3_BUCKET_NAME,
-                                 key_prefix='/')
-
-    # Generate captions
-    captions = generate_captions(image_loader.iter_images(),
-                                 model,
-                                 image_processor,
-                                 tokenizer)
-
-    # Save the captions
-    save_captions(captions)
-
-
-def save_captions(captions):
-    # Save the captions as a csv
-    with open('captions.csv', 'w') as f:
-        for name, caption in captions.items():
-            f.write(f'{name},{caption}\n')
-
-
 def load_models():
     model_raw = VisionEncoderDecoderModel \
         .from_pretrained("nlpconnect/vit-gpt2-image-captioning")
@@ -66,3 +38,30 @@ def generate_captions(images, model, image_processor, tokenizer):
         caption = generate_caption(image, model, image_processor, tokenizer)
         captions[name] = caption
     return captions
+
+
+def save_captions(captions):
+    # Save the captions as a csv
+    with open('captions.csv', 'w') as f:
+        for name, caption in captions.items():
+            f.write(f'{name},{caption}\n')
+
+
+if __name__ == '__main__':
+    S3_BUCKET_NAME = 'bstuart-image-captioning-dataset'
+
+    # Load the model
+    model, image_processor, tokenizer = load_models()
+
+    # Load the images
+    image_loader = S3ImageLoader(bucket_name=S3_BUCKET_NAME,
+                                 key_prefix='/')
+
+    # Generate captions
+    captions = generate_captions(image_loader.iter_images(),
+                                 model,
+                                 image_processor,
+                                 tokenizer)
+
+    # Save the captions
+    save_captions(captions)

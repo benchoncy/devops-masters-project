@@ -73,17 +73,3 @@ resource "aws_rds_cluster_instance" "airflow" {
   engine_version       = aws_rds_cluster.airflow.engine_version
   db_subnet_group_name = aws_db_subnet_group.default.name
 }
-
-data "kubernetes_service" "airflow" {
-  depends_on = [
-    helm_release.airflow_community
-  ]
-  metadata {
-    name = "devops-masters-project-airflow-community-web"
-    namespace = local.airflow_namespace
-  }
-}
-
-output "airflow_url" {
-  value = "http://${data.kubernetes_service.airflow.status.0.load_balancer.0.ingress.0.hostname}"
-}

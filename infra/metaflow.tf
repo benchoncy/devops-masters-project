@@ -71,8 +71,8 @@ module "metaflow-metadata-service" {
   resource_suffix = local.metaflow_resource_suffix
 
   access_list_cidr_blocks          = []
-  enable_api_basic_auth            = true
-  enable_api_gateway               = true
+  enable_api_basic_auth            = false
+  enable_api_gateway               = false
   database_name                    = aws_rds_cluster.metaflow.database_name
   database_password                = random_password.metaflow_db_password.result
   database_username                = aws_rds_cluster.metaflow.master_username
@@ -86,21 +86,21 @@ module "metaflow-metadata-service" {
   subnet2_id                       = module.vpc.private_subnets[1]
   vpc_cidr_blocks                  = [module.vpc.vpc_cidr_block]
   with_public_ip                   = false
-	standard_tags										 = {}
+  standard_tags				       = {}
 }
 
 # Metaflow config
-data "aws_api_gateway_api_key" "metadata_api_key" {
-  id = module.metaflow-metadata-service.api_gateway_rest_api_id_key_id
-}
+#data "aws_api_gateway_api_key" "metadata_api_key" {
+#  id = module.metaflow-metadata-service.api_gateway_rest_api_id_key_id
+#}
 
 resource "local_file" "metaflow_config_argo" {
   content  = jsonencode({
-    "METAFLOW_SERVICE_AUTH_KEY"            = data.aws_api_gateway_api_key.metadata_api_key.value
+    #"METAFLOW_SERVICE_AUTH_KEY"            = data.aws_api_gateway_api_key.metadata_api_key.value
     "METAFLOW_DATASTORE_SYSROOT_S3"        = "s3://${aws_s3_bucket.metaflow_store.arn}/metaflow"
     "METAFLOW_DATATOOLS_S3ROOT"            = "s3://${aws_s3_bucket.metaflow_store.arn}/data"
     "METAFLOW_SERVICE_URL"                 = module.metaflow-metadata-service.METAFLOW_SERVICE_URL
-    "METAFLOW_KUBERNETES_NAMESPACE"        = local.argo_jobs_namespace
+    "METAFLOW_KUBERNETES_NAMESPACE"        = local.argo_namespace
     "METAFLOW_KUBERNETES_SERVICE_ACCOUNT"  = "argo-workflow"
     "METAFLOW_DEFAULT_DATASTORE"           = "s3"
     "METAFLOW_DEFAULT_METADATA"            = "service"
@@ -115,7 +115,7 @@ resource "local_file" "metaflow_config_argo" {
 
 resource "local_file" "metaflow_config_airflow" {
   content  = jsonencode({
-    "METAFLOW_SERVICE_AUTH_KEY"            = data.aws_api_gateway_api_key.metadata_api_key.value
+    #"METAFLOW_SERVICE_AUTH_KEY"            = data.aws_api_gateway_api_key.metadata_api_key.value
     "METAFLOW_DATASTORE_SYSROOT_S3"        = "s3://${aws_s3_bucket.metaflow_store.arn}/metaflow"
     "METAFLOW_DATATOOLS_S3ROOT"            = "s3://${aws_s3_bucket.metaflow_store.arn}/data"
     "METAFLOW_SERVICE_URL"                 = module.metaflow-metadata-service.METAFLOW_SERVICE_URL

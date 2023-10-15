@@ -1,6 +1,5 @@
 locals {
   argo_namespace = "argo"
-  argo_jobs_namespace = "${local.argo_namespace}-jobs"
   argo_values = {
     ARTIFACTS_BUCKET_NAME = aws_s3_bucket.metaflow_store.bucket
     ARTIFACTS_KEY_FORMAT = "argo-artifacts/{{workflow.creationTimestamp.Y}}/{{workflow.creationTimestamp.m}}/{{workflow.creationTimestamp.d}}/{{workflow.name}}/{{pod.name}}"
@@ -27,20 +26,10 @@ resource "helm_release" "argo_metaflow" {
   ]
 }
 
-resource "kubernetes_namespace" "jobs" {
-  depends_on = [
-      helm_release.argo_metaflow
-  ]
-  metadata {
-    name = local.argo_jobs_namespace
-  }
-}
-
 module "argo_events" {
   depends_on     = [
     helm_release.argo_metaflow,
-    kubernetes_namespace.jobs
   ]
   source         = "git::git@github.com:outerbounds/metaflow-tools//common/terraform/argo_events?ref=v2.0.0"
-  jobs_namespace = local.argo_jobs_namespace
+  jobs_namespace = local.argo_namespace
 }

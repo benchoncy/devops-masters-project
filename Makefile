@@ -9,9 +9,11 @@ install: py.install
 
 test: py.test
 
+setup: install metaflow.configure py.activate
+
 # Python
 py.install:
-	poetry update
+	poetry install
 
 py.activate:
 	poetry shell
@@ -20,6 +22,8 @@ py.test:
 	${python} -m pytest
 
 # Terraform
+tf: tf.init tf.plan tf.apply
+
 tf.init:
 	cd ${tf_dir} && terraform init
 
@@ -31,3 +35,8 @@ tf.apply:
 
 tf.destroy:
 	cd ${tf_dir} && terraform destroy
+
+# Metaflow
+metaflow.configure:
+	mv ${tf_dir}/config/config_airflow.json ~/.metaflowconfig/config_mstr_airflow.json
+	mv ${tf_dir}/config/config_argo.json ~/.metaflowconfig/config_mstr_argo.json

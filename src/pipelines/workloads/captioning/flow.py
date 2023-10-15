@@ -5,9 +5,9 @@ EXPERIMENT_ID = "image-captioning"
 tracer = setup_traces(experiment_id=EXPERIMENT_ID)
 
 
-@tracer.start_as_current_span("main")
+@tracer.start_as_current_span("0--main")
 class ExperimentFlow(FlowSpec):
-    @tracer.start_as_current_span("start")
+    @tracer.start_as_current_span("1--start")
     @step
     def start(self):
         from instrumentation import setup_metrics
@@ -17,7 +17,7 @@ class ExperimentFlow(FlowSpec):
         )
         self.next(self.dataset_perperation)
 
-    @tracer.start_as_current_span("dataset_perperation")
+    @tracer.start_as_current_span("2--dataset_perperation")
     @step
     def dataset_perperation(self):
         from instrumentation import setup_metrics
@@ -27,7 +27,7 @@ class ExperimentFlow(FlowSpec):
         )
         self.next(self.inference)
 
-    @tracer.start_as_current_span("inference")
+    @tracer.start_as_current_span("3--inference")
     @step
     def inference(self):
         from instrumentation import setup_metrics
@@ -37,7 +37,7 @@ class ExperimentFlow(FlowSpec):
         )
         self.next(self.end)
 
-    @tracer.start_as_current_span("end")
+    @tracer.start_as_current_span("4--end")
     @step
     def end(self):
         from instrumentation import setup_metrics

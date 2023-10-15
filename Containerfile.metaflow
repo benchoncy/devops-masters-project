@@ -1,0 +1,12 @@
+FROM python:3.10 as base
+
+# Install poetry
+RUN pip install poetry
+
+# Copy poetry.lock and pyproject.toml
+WORKDIR /app
+COPY poetry.lock pyproject.toml /app/
+
+# Install dependencies
+RUN poetry config virtualenvs.create false \
+    && poetry install -G main
