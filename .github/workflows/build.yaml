@@ -6,7 +6,7 @@ on:
     branches:
       - '**'
     paths:
-      - '.github/workflows.build.yaml'
+      - '.github/workflows/build.yaml'
       - '**/Containerfile*'
       - 'pyproject.toml'
       - 'poetry.lock'
