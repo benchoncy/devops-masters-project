@@ -3,9 +3,12 @@ name: Image build
 
 on:
   push:
+    branches:
+      - '**'
     paths:
+      - '.github/workflows.build.yaml'
       - '**/Containerfile*'
-      - 'pyproject.yaml'
+      - 'pyproject.toml'
       - 'poetry.lock'
 
 jobs:
