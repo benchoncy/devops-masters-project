@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        images:
+        image:
           - name: metaflow
             file: Containerfile.metaflow
     steps:
@@ -46,7 +46,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.IMAGE_PREFIX }}${{ matrix.name }}
+          images: ${{ env.IMAGE_PREFIX }}${{ matrix.image.name }}
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=sha
@@ -60,7 +60,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          file: ${{ matrix.file }}
+          file: ${{ matrix.image.file }}
           platforms: linux/amd64
           labels: ${{ steps.meta.outputs.labels }}
           tags: ${{ steps.meta.outputs.tags }}
