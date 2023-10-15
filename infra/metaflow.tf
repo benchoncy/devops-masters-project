@@ -71,8 +71,8 @@ module "metaflow-metadata-service" {
   resource_suffix = local.metaflow_resource_suffix
 
   access_list_cidr_blocks          = []
-  enable_api_basic_auth            = false
-  enable_api_gateway               = false
+  enable_api_basic_auth            = true
+  enable_api_gateway               = true
   database_name                    = aws_rds_cluster.metaflow.database_name
   database_password                = random_password.metaflow_db_password.result
   database_username                = aws_rds_cluster.metaflow.master_username
@@ -90,32 +90,37 @@ module "metaflow-metadata-service" {
 }
 
 # Metaflow config
-#data "aws_api_gateway_api_key" "metadata_api_key" {
-#  id = module.metaflow-metadata-service.api_gateway_rest_api_id_key_id
-#}
+data "aws_api_gateway_api_key" "metadata_api_key" {
+  depends_on = [module.metaflow-metadata-service]
+  id = module.metaflow-metadata-service.api_gateway_rest_api_id_key_id
+}
+
+data "aws_caller_identity" "current" {}
 
 resource "local_file" "metaflow_config_argo" {
-  content  = jsonencode({
-    #"METAFLOW_SERVICE_AUTH_KEY"            = data.aws_api_gateway_api_key.metadata_api_key.value
-    "METAFLOW_DATASTORE_SYSROOT_S3"        = "s3://${aws_s3_bucket.metaflow_store.arn}/metaflow"
-    "METAFLOW_DATATOOLS_S3ROOT"            = "s3://${aws_s3_bucket.metaflow_store.arn}/data"
-    "METAFLOW_SERVICE_URL"                 = module.metaflow-metadata-service.METAFLOW_SERVICE_URL
-    "METAFLOW_KUBERNETES_NAMESPACE"        = local.argo_namespace
-    "METAFLOW_KUBERNETES_SERVICE_ACCOUNT"  = "argo-workflow"
-    "METAFLOW_DEFAULT_DATASTORE"           = "s3"
-    "METAFLOW_DEFAULT_METADATA"            = "service"
-    "METAFLOW_ARGO_EVENTS_EVENT_BUS"       = "default"
-    "METAFLOW_ARGO_EVENTS_EVENT_SOURCE"    = "argo-events-webhook"
-    "METAFLOW_ARGO_EVENTS_SERVICE_ACCOUNT" = "operate-workflow-sa"
-    "METAFLOW_ARGO_EVENTS_EVENT"           = "metaflow-event"
-    "METAFLOW_ARGO_EVENTS_WEBHOOK_URL"     = "http://argo-events-webhook-eventsource-svc.default:12000/metaflow-event"
-  })
+  content  = <<-EOT
+    {
+      "METAFLOW_DATASTORE_SYSROOT_S3": "s3://${aws_s3_bucket.metaflow_store.id}/metaflow",
+      "METAFLOW_DATATOOLS_S3ROOT": "s3://${aws_s3_bucket.metaflow_store.id}/data",
+      "METAFLOW_SERVICE_URL": "${module.metaflow-metadata-service.METAFLOW_SERVICE_URL}",
+      "METAFLOW_SERVICE_INTERNAL_URL": "${module.metaflow-metadata-service.METAFLOW_SERVICE_URL}",
+      "METAFLOW_SERVICE_AUTH_KEY": "${data.aws_api_gateway_api_key.metadata_api_key.value}",
+      "METAFLOW_KUBERNETES_CONTAINER_REGISTRY": "${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/",
+      "METAFLOW_KUBERNETES_CONTAINER_IMAGE": "benchoncy-${local.project_name}/metaflow:latest",
+      "METAFLOW_KUBERNETES_NAMESPACE": "default",
+      "METAFLOW_KUBERNETES_SERVICE_ACCOUNT": "workflow",
+      "METAFLOW_DEFAULT_DATASTORE": "s3",
+      "METAFLOW_DEFAULT_METADATA": "service"
+    }
+    EOT
   filename = "${path.module}/config/config_argo.json"
 }
 
 resource "local_file" "metaflow_config_airflow" {
   content  = jsonencode({
-    #"METAFLOW_SERVICE_AUTH_KEY"            = data.aws_api_gateway_api_key.metadata_api_key.value
+    "METAFLOW_SERVICE_AUTH_KEY"            = data.aws_api_gateway_api_key.metadata_api_key.value
+    "METAFLOW_DEFAULT_CONTAINER_REGISTRY"  = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/"
+    "METAFLOW_DEFAULT_CONTAINER_IMAGE"     = "benchoncy-${local.project_name}/metaflow:latest"
     "METAFLOW_DATASTORE_SYSROOT_S3"        = "s3://${aws_s3_bucket.metaflow_store.arn}/metaflow"
     "METAFLOW_DATATOOLS_S3ROOT"            = "s3://${aws_s3_bucket.metaflow_store.arn}/data"
     "METAFLOW_SERVICE_URL"                 = module.metaflow-metadata-service.METAFLOW_SERVICE_URL

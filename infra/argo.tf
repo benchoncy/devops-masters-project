@@ -25,11 +25,3 @@ resource "helm_release" "argo_metaflow" {
     "${templatefile("values_templates/argo.yaml", local.argo_values)}"
   ]
 }
-
-module "argo_events" {
-  depends_on     = [
-    helm_release.argo_metaflow,
-  ]
-  source         = "git::git@github.com:outerbounds/metaflow-tools//common/terraform/argo_events?ref=v2.0.0"
-  jobs_namespace = local.argo_namespace
-}

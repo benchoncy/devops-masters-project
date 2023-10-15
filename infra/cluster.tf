@@ -124,7 +124,7 @@ resource "aws_iam_role_policy_attachment" "node_role_aws_managed_policy_attachme
   for_each = toset([
     "AmazonEKSWorkerNodePolicy",
     "AmazonEKS_CNI_Policy",
-    "AmazonEC2ContainerRegistryReadOnly"
+    "AmazonEC2ContainerRegistryReadOnly",
   ])
 
   role       = aws_iam_role.node_role.name
@@ -155,4 +155,15 @@ resource "time_sleep" "wait_for_cluster" {
   ]
 
   create_duration = "15s"
+}
+
+data "tls_certificate" "eks" {
+  url = aws_eks_cluster.main.identity[0].oidc[0].issuer
+}
+
+# Create OIDC provider
+resource "aws_iam_openid_connect_provider" "eks" {
+  url             = aws_eks_cluster.main.identity[0].oidc[0].issuer
+  client_id_list  = ["sts.amazonaws.com"]
+  thumbprint_list = [data.tls_certificate.eks.certificates[0].sha1_fingerprint]
 }

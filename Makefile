@@ -38,5 +38,5 @@ tf.destroy:
 
 # Metaflow
 metaflow.configure:
-	mv ${tf_dir}/config/config_airflow.json ~/.metaflowconfig/config_mstr_airflow.json
-	mv ${tf_dir}/config/config_argo.json ~/.metaflowconfig/config_mstr_argo.json
+	cp ${tf_dir}/config/config_airflow.json ~/.metaflowconfig/config_mstr_airflow.json
+	cp ${tf_dir}/config/config_argo.json ~/.metaflowconfig/config_mstr_argo.json
