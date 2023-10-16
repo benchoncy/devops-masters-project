@@ -48,14 +48,17 @@ def save_captions(captions):
 
 
 if __name__ == '__main__':
-    S3_BUCKET_NAME = 'bstuart-image-captioning-dataset'
+    S3_BUCKET_NAME = 'bstuart-masters-project-dataset'
 
     # Load the model
     model, image_processor, tokenizer = load_models()
 
     # Load the images
-    image_loader = S3ImageLoader(bucket_name=S3_BUCKET_NAME,
-                                 key_prefix='/')
+    image_loader = S3ImageLoader(
+        bucket_name=S3_BUCKET_NAME,
+        key_prefix='images/objects-in-the-lab/images/',
+        max_keys=10
+    )
 
     # Generate captions
     captions = generate_captions(image_loader.iter_images(),
