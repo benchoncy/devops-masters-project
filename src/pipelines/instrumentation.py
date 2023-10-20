@@ -2,16 +2,17 @@ from opentelemetry import metrics
 from opentelemetry.metrics import CallbackOptions, Observation
 from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.metrics.export import (
-    ConsoleMetricExporter,
     PeriodicExportingMetricReader,
 )
 from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import (
     BatchSpanProcessor,
-    ConsoleSpanExporter,
 )
 from opentelemetry.sdk.resources import Resource, SERVICE_NAME
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
+from opentelemetry.sdk.extension.aws.trace import AwsXRayIdGenerator
 import psutil
 import cpuinfo
 
@@ -57,7 +58,7 @@ def get_network_iops_callback(_: CallbackOptions):
 
 def setup_metrics(experiment_id: str,
                   step_id: str,
-                  exporter=ConsoleMetricExporter(),
+                  exporter=OTLPMetricExporter(),
                   export_interval_seconds=15):
     reader = PeriodicExportingMetricReader(
         exporter=exporter,
@@ -119,7 +120,7 @@ def setup_metrics(experiment_id: str,
     )
 
 
-def setup_traces(experiment_id: str, exporter=ConsoleSpanExporter()):
+def setup_traces(experiment_id: str, exporter=OTLPSpanExporter()):
     processor = BatchSpanProcessor(
         span_exporter=exporter,
     )
@@ -130,7 +131,8 @@ def setup_traces(experiment_id: str, exporter=ConsoleSpanExporter()):
                 SERVICE_NAME: "system-traces",
                 "experiment.id": experiment_id,
             }
-        )
+        ),
+        id_generator=AwsXRayIdGenerator(),
     )
     trace_provider.add_span_processor(processor)
     trace.set_tracer_provider(trace_provider)
