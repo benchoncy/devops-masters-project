@@ -14,7 +14,6 @@ setup: install metaflow.configure py.activate
 # Python
 py.install:
 	poetry install
-	poetry run opentelemetry-bootstrap --action=install
 
 py.activate:
 	poetry shell

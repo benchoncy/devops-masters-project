@@ -10,7 +10,6 @@ COPY poetry.lock pyproject.toml /app/
 # Intall ADOT Collector
 RUN wget https://aws-otel-collector.s3.amazonaws.com/ubuntu/amd64/latest/aws-otel-collector.deb \
     && dpkg -i aws-otel-collector.deb
-RUN /opt/aws/aws-otel-collector/bin/aws-otel-collector-ctl -a start
 
 # Install dependencies
 RUN poetry config virtualenvs.create false \
