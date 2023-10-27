@@ -118,7 +118,6 @@ resource "local_file" "metaflow_config_argo" {
 
 resource "local_file" "metaflow_config_airflow" {
   content  = jsonencode({
-    "METAFLOW_SERVICE_AUTH_KEY"            = data.aws_api_gateway_api_key.metadata_api_key.value
     "METAFLOW_DEFAULT_CONTAINER_REGISTRY"  = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/"
     "METAFLOW_DEFAULT_CONTAINER_IMAGE"     = "benchoncy-${local.project_name}/metaflow:latest"
     "METAFLOW_DATASTORE_SYSROOT_S3"        = "s3://${aws_s3_bucket.metaflow_store.arn}/metaflow"

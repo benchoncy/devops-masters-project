@@ -145,110 +145,110 @@ def get_network_iops_callback(_: CallbackOptions):
     )
 
 
-def setup_metrics(tool: str,
-                  experiment_id: str,
-                  step_id: str,
-                  run_id: int,
-                  exporter=S3MetricExporter(),
-                  export_interval_seconds=15):
-    reader = PeriodicExportingMetricReader(
-        exporter=exporter,
-        export_interval_millis=export_interval_seconds * 1000,
-    )
-    # Create meter provider
-    meter_provider = MeterProvider(
-        resource=Resource.create(
-            {
-                SERVICE_NAME: "system-metrics",
-                "experiment.tool": tool,
-                "experiment.id": experiment_id,
-                "experiment.step.id": step_id,
-                "experiment.run.id": run_id,
-                "system.cpu.brand": cpuinfo.get_cpu_info()['brand_raw'],
-                "system.cpu.cores": psutil.cpu_count(),
-                "system.memory.total": psutil.virtual_memory().total / GB,
-                "system.disk.total": psutil.disk_usage('/').total / GB,
-            }
-        ),
-        metric_readers=[reader]
-    )
-    metrics.set_meter_provider(meter_provider)
+class TelemetryManager:
+    def __init__(self, tool: str, experiment_id: str, run_id: int):
+        self.tool = tool
+        self.experiment_id = experiment_id
+        self.run_id = run_id
+        self.meter_provider = None
+        self.trace_provider = None
 
-    meter = metrics.get_meter(f"{experiment_id}.{step_id}")
+    def setup(self, step_id: str):
+        self.meter_provider = self.setup_metrics(step_id=step_id)
+        tracer, self.trace_provider = self.setup_traces()
+        return tracer
 
-    # Create systen metric gauges
-    cpu_usage = meter.create_observable_gauge(
-        callbacks=[get_cpu_usage_callback],
-        name="cpu_percent",
-        description="CPU usage in percent",
-        unit="1"
-    )
+    def shutdown(self):
+        if self.meter_provider is not None:
+            self.meter_provider.shutdown()
+            self.meter_provider = None
+        if self.trace_provider is not None:
+            self.trace_provider.shutdown()
+            self.trace_provider = None
 
-    memory_usage = meter.create_observable_gauge(
-        callbacks=[get_memory_usage_callback],
-        name="memory_percent",
-        description="Memory usage in percent",
-        unit="1"
-    )
+    def setup_metrics(self,
+                      step_id: str,
+                      exporter=S3MetricExporter(),
+                      export_interval_seconds=15):
+        reader = PeriodicExportingMetricReader(
+            exporter=exporter,
+            export_interval_millis=export_interval_seconds * 1000,
+        )
+        # Create meter provider
+        meter_provider = MeterProvider(
+            resource=Resource.create(
+                {
+                    SERVICE_NAME: "system-metrics",
+                    "experiment.tool": self.tool,
+                    "experiment.id": self.experiment_id,
+                    "experiment.step.id": step_id,
+                    "experiment.run.id": self.run_id,
+                    "system.cpu.brand": cpuinfo.get_cpu_info()['brand_raw'],
+                    "system.cpu.cores": psutil.cpu_count(),
+                    "system.memory.total": psutil.virtual_memory().total / GB,
+                    "system.disk.total": psutil.disk_usage('/').total / GB,
+                }
+            ),
+            metric_readers=[reader]
+        )
+        metrics.set_meter_provider(meter_provider)
 
-    disk_usage = meter.create_observable_gauge(
-        callbacks=[get_disk_usage_callback],
-        name="disk_percent",
-        description="Disk usage in percent",
-        unit="1"
-    )
+        meter = metrics.get_meter(f"{self.experiment_id}.{step_id}")
 
-    disk_iops = meter.create_observable_gauge(
-        callbacks=[get_disk_iops_callback],
-        name="disk_iops",
-        description="Disk IOPS",
-        unit="IOPS"
-    )
+        # Create systen metric gauges
+        cpu_usage = meter.create_observable_gauge(
+            callbacks=[get_cpu_usage_callback],
+            name="cpu_percent",
+            description="CPU usage in percent",
+            unit="1"
+        )
 
-    network_iops = meter.create_observable_gauge(
-        callbacks=[get_network_iops_callback],
-        name="network_iops",
-        description="Network IOPS",
-        unit="IOPS"
-    )
+        memory_usage = meter.create_observable_gauge(
+            callbacks=[get_memory_usage_callback],
+            name="memory_percent",
+            description="Memory usage in percent",
+            unit="1"
+        )
 
-    return meter_provider
+        disk_usage = meter.create_observable_gauge(
+            callbacks=[get_disk_usage_callback],
+            name="disk_percent",
+            description="Disk usage in percent",
+            unit="1"
+        )
 
+        disk_iops = meter.create_observable_gauge(
+            callbacks=[get_disk_iops_callback],
+            name="disk_iops",
+            description="Disk IOPS",
+            unit="IOPS"
+        )
 
-def setup_traces(tool: str, experiment_id: str, run_id: int, exporter=S3SpanExporter()):
-    processor = BatchSpanProcessor(
-        span_exporter=exporter,
-    )
-    # Create trace provider
-    trace_provider = TracerProvider(
-        resource=Resource.create(
-            {
-                SERVICE_NAME: "system-traces",
-                "experiment.tool": tool,
-                "experiment.id": experiment_id,
-                "experiment.run.id": run_id,
-            }
-        ),
-    )
-    trace_provider.add_span_processor(processor)
-    trace.set_tracer_provider(trace_provider)
-    tracer = trace.get_tracer(experiment_id)
-    return tracer, trace_provider
+        network_iops = meter.create_observable_gauge(
+            callbacks=[get_network_iops_callback],
+            name="network_iops",
+            description="Network IOPS",
+            unit="IOPS"
+        )
 
+        return meter_provider
 
-if __name__ == "__main__":
-    # Export metrics to console
-    tracer, trace_provider = setup_traces(tool="test", experiment_id="test", run_id=1)
-
-    @tracer.start_as_current_span(name="run")
-    def run():
-        import time
-        meter_provider = setup_metrics(tool="test",
-                      experiment_id="test",
-                      step_id="run",
-                      run_id=1,
-                      export_interval_seconds=1)
-        time.sleep(3)
-        meter_provider.shutdown()
-    run()
-    trace_provider.shutdown()
+    def setup_traces(self, exporter=S3SpanExporter()):
+        processor = BatchSpanProcessor(
+            span_exporter=exporter,
+        )
+        # Create trace provider
+        trace_provider = TracerProvider(
+            resource=Resource.create(
+                {
+                    SERVICE_NAME: "system-traces",
+                    "experiment.tool": self.tool,
+                    "experiment.id": self.experiment_id,
+                    "experiment.run.id": self.run_id,
+                }
+            ),
+        )
+        trace_provider.add_span_processor(processor)
+        trace.set_tracer_provider(trace_provider)
+        tracer = trace.get_tracer(self.experiment_id)
+        return tracer, trace_provider
