@@ -7,11 +7,6 @@ RUN pip install poetry
 WORKDIR /app
 COPY poetry.lock pyproject.toml /app/
 
-# Intall ADOT Collector
-RUN wget https://aws-otel-collector.s3.amazonaws.com/ubuntu/amd64/latest/aws-otel-collector.deb \
-    && dpkg -i aws-otel-collector.deb
-
 # Install dependencies
 RUN poetry config virtualenvs.create false \
-    && poetry install --only main \
-    && opentelemetry-bootstrap --action=install
+    && poetry install --only main
