@@ -1,17 +1,18 @@
 from metaflow import FlowSpec, step, Parameter, resources
-from src.pipelines.instrumentation import TelemetryManager
+from src.pipelines.instrumentation import TelemetryManager, create_marker
 from src.pipelines.workloads.captioning.workload import load_models, generate_captions, save_captions
 from src.pipelines.utils import S3ImageLoader
 import os
 
 run_id = int(os.getenv("RUN_ID", 1))
+tm = TelemetryManager(tool="metaflow", experiment_id="image_captioning",
+                      run_id=run_id)
 
 
 class ExperimentFlow(FlowSpec):
 
     inf = Parameter('inf', help='Number of inferences to run', default=10)
-    tm = TelemetryManager(tool="metaflow", experiment_id="image_captioning",
-                          run_id=run_id)
+    tm = tm
 
     @resources(cpu=2, memory=8000)
     @step
@@ -53,4 +54,6 @@ class ExperimentFlow(FlowSpec):
 
 
 if __name__ == "__main__":
+    create_marker("start", f"image_captioning/metaflow/{run_id}")
     ExperimentFlow()
+    create_marker("end", f"image_captioning/metaflow/{run_id}")

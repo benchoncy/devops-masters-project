@@ -17,6 +17,7 @@ import cpuinfo
 import boto3
 import json
 import csv
+import time
 
 
 S3_BUCKET_NAME = "bstuart-masters-project-logs"
@@ -26,6 +27,13 @@ S3_BUCKET_NAME = "bstuart-masters-project-logs"
 KB = float(1024)
 MB = float(KB ** 2)
 GB = float(KB ** 3)
+
+
+def create_marker(name, prefix):
+    timestamp = int(time.time())
+    with open(f"/tmp/{name}", "w") as f:
+        f.write(str(timestamp))
+    to_s3(f"/tmp/{name}", S3_BUCKET_NAME, f"{prefix}/{name}.txt")
 
 
 def to_csv(data, path):
