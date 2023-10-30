@@ -85,7 +85,7 @@ module "metaflow-metadata-service" {
   subnet1_id                       = module.vpc.private_subnets[0]
   subnet2_id                       = module.vpc.private_subnets[1]
   vpc_cidr_blocks                  = [module.vpc.vpc_cidr_block]
-  with_public_ip                   = false
+  with_public_ip                   = true
   standard_tags				       = {}
 }
 
@@ -113,7 +113,7 @@ resource "local_file" "metaflow_config_argo" {
       "METAFLOW_DEFAULT_METADATA": "service"
     }
     EOT
-  filename = "${path.module}/config/config_argo.json"
+  filename = "${path.module}/config/config_k8s.json"
 }
 
 resource "local_file" "metaflow_config_airflow" {

@@ -8,5 +8,5 @@ Datasets:
 1. `make setup`
 2. Run flow on select config:
 ```
-METAFLOW_PROFILE=mstr_argo; python -m {path/to/flow.py} run
+METAFLOW_PROFILE=mstr_k8s; python -m {path/to/flow.py} run
 ```

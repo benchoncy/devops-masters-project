@@ -7,10 +7,13 @@ from src.pipelines.utils import S3ImageLoader
 
 
 def load_models():
+    print('Loading raw model')
     model_raw = VisionEncoderDecoderModel \
         .from_pretrained("nlpconnect/vit-gpt2-image-captioning")
+    print('Loading image processor')
     image_processor = ViTImageProcessor \
         .from_pretrained("nlpconnect/vit-gpt2-image-captioning")
+    print('Loading tokenizer')
     tokenizer = GPT2TokenizerFast \
         .from_pretrained("nlpconnect/vit-gpt2-image-captioning")
     return model_raw, image_processor, tokenizer
