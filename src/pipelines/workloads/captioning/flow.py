@@ -1,20 +1,23 @@
-from metaflow import FlowSpec, step, Parameter
+from metaflow import FlowSpec, step, Parameter, resources
 from src.pipelines.instrumentation import TelemetryManager
 from src.pipelines.workloads.captioning.workload import load_models, generate_captions, save_captions
 from src.pipelines.utils import S3ImageLoader
 import os
+
+run_id = int(os.getenv("RUN_ID", 1))
 
 
 class ExperimentFlow(FlowSpec):
 
     inf = Parameter('inf', help='Number of inferences to run', default=10)
     tm = TelemetryManager(tool="metaflow", experiment_id="image_captioning",
-                          run_id=os.getenv("RUN_ID"))
+                          run_id=run_id)
 
+    @resources(cpu=2, memory=8000)
     @step
     def start(self):
-        tracer = self.tm.setup(step_id="start")
-        with tracer.start_as_current_span("1--load-models"):
+        self.tm.setup(step_id="start")
+        with self.tm.tracer.start_as_current_span("start"):
             print("Starting experiment")
             print("Loading models")
             self.model, self.image_processor, self.tokenizer \
@@ -22,31 +25,31 @@ class ExperimentFlow(FlowSpec):
         self.tm.shutdown()
         self.next(self.inference)
 
+    @resources(cpu=2, memory=8000)
     @step
     def inference(self):
-        meter_provider = self.tm.setup_metrics(
-            step_id="inference",
-        )
-        image_loader = S3ImageLoader(
-            bucket_name="bstuart-masters-project-dataset",
-            key_prefix='images/objects-in-the-lab/images/',
-            max_keys=10
-        )
-        self.captions = generate_captions(
-            image_loader.iter_images(),
-            self.model,
-            self.image_processor,
-            self.tokenizer)
-        meter_provider.shutdown()
+        self.tm.setup(step_id="inference")
+        with self.tm.tracer.start_as_current_span("inference"):
+            image_loader = S3ImageLoader(
+                bucket_name="bstuart-masters-project-dataset",
+                key_prefix='images/objects-in-the-lab/images/',
+                max_keys=10
+            )
+            self.captions = generate_captions(
+                image_loader.iter_images(),
+                self.model,
+                self.image_processor,
+                self.tokenizer)
+        self.tm.shutdown()
         self.next(self.end)
 
+    @resources(cpu=2, memory=8000)
     @step
     def end(self):
-        meter_provider = self.tm.setup_metrics(
-            step_id="end",
-        )
-        save_captions(self.captions)
-        meter_provider.shutdown()
+        self.tm.setup(step_id="end")
+        with self.tm.tracer.start_as_current_span("end"):
+            save_captions(self.captions)
+        self.tm.shutdown()
 
 
 if __name__ == "__main__":

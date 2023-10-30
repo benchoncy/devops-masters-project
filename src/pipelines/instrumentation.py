@@ -105,9 +105,10 @@ class S3SpanExporter(SpanExporter):
     def shutdown(self, **_):
         tool = self.system_profile["experiment.tool"]
         experiment_id = self.system_profile["experiment.id"]
+        step_id = self.system_profile["experiment.step.id"]
         run_id = self.system_profile["experiment.run.id"]
         path = "/tmp/spans.csv"
-        key = f"{experiment_id}/{tool}/{run_id}/spans.csv"
+        key = f"{experiment_id}/{tool}/{run_id}/{step_id}_span.csv"
         to_csv(self.span_data, path)
         to_s3(path, self.bucket_name, key)
 
@@ -152,11 +153,19 @@ class TelemetryManager:
         self.run_id = run_id
         self.meter_provider = None
         self.trace_provider = None
+        self.tracer = None
 
     def setup(self, step_id: str):
         self.meter_provider = self.setup_metrics(step_id=step_id)
-        tracer, self.trace_provider = self.setup_traces()
-        return tracer
+        self.tracer, self.trace_provider = self.setup_traces(step_id=step_id)
+
+    def telemetry(self, func):
+        def wrapper(*args, **kwargs):
+            self.setup(func.__name__)
+            with self.tracer.start_as_current_span(func.__name__):
+                func(*args, **kwargs)
+            self.shutdown()
+        return wrapper
 
     def shutdown(self):
         if self.meter_provider is not None:
@@ -165,6 +174,8 @@ class TelemetryManager:
         if self.trace_provider is not None:
             self.trace_provider.shutdown()
             self.trace_provider = None
+        if self.tracer is not None:
+            self.tracer = None
 
     def setup_metrics(self,
                       step_id: str,
@@ -233,7 +244,7 @@ class TelemetryManager:
 
         return meter_provider
 
-    def setup_traces(self, exporter=S3SpanExporter()):
+    def setup_traces(self, step_id, exporter=S3SpanExporter()):
         processor = BatchSpanProcessor(
             span_exporter=exporter,
         )
@@ -244,6 +255,7 @@ class TelemetryManager:
                     SERVICE_NAME: "system-traces",
                     "experiment.tool": self.tool,
                     "experiment.id": self.experiment_id,
+                    "experiment.step.id": step_id,
                     "experiment.run.id": self.run_id,
                 }
             ),
