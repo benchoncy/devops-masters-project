@@ -64,7 +64,7 @@ if __name__ == '__main__':
     )
 
     # Generate captions
-    captions = generate_captions(image_loader.iter_images(),
+    captions = generate_captions(image_loader,
                                  model,
                                  image_processor,
                                  tokenizer)

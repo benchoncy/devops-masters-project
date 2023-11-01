@@ -1,23 +1,19 @@
 from metaflow import FlowSpec, step, Parameter, resources
-from src.pipelines.instrumentation import TelemetryManager, create_marker
+from src.pipelines.instrumentation import TelemetryManager
 from src.pipelines.workloads.captioning.workload import load_models, generate_captions, save_captions
 from src.pipelines.utils import S3ImageLoader
-import os
-
-run_id = int(os.getenv("RUN_ID", 1))
-tm = TelemetryManager(tool="metaflow", experiment_id="image_captioning",
-                      run_id=run_id)
 
 
 class ExperimentFlow(FlowSpec):
 
     inf = Parameter('inf', help='Number of inferences to run', default=10)
-    tm = tm
+    run_id = Parameter('run_id', help='Run ID')
+    tm = TelemetryManager(tool="metaflow", experiment_id="image-captioning")
 
     @resources(cpu=2, memory=8000)
     @step
     def start(self):
-        self.tm.setup(step_id="start")
+        self.tm.setup(run_id=self.run_id, step_id="start")
         with self.tm.tracer.start_as_current_span("start"):
             print("Starting experiment")
             print("Loading models")
@@ -29,7 +25,7 @@ class ExperimentFlow(FlowSpec):
     @resources(cpu=2, memory=8000)
     @step
     def inference(self):
-        self.tm.setup(step_id="inference")
+        self.tm.setup(run_id=self.run_id, step_id="inference")
         with self.tm.tracer.start_as_current_span("inference"):
             image_loader = S3ImageLoader(
                 bucket_name="bstuart-masters-project-dataset",
@@ -37,7 +33,7 @@ class ExperimentFlow(FlowSpec):
                 max_keys=10
             )
             self.captions = generate_captions(
-                image_loader.iter_images(),
+                image_loader,
                 self.model,
                 self.image_processor,
                 self.tokenizer)
@@ -47,13 +43,11 @@ class ExperimentFlow(FlowSpec):
     @resources(cpu=2, memory=8000)
     @step
     def end(self):
-        self.tm.setup(step_id="end")
+        self.tm.setup(run_id=self.run_id, step_id="end")
         with self.tm.tracer.start_as_current_span("end"):
             save_captions(self.captions)
         self.tm.shutdown()
 
 
 if __name__ == "__main__":
-    create_marker("start", f"image_captioning/metaflow/{run_id}")
     ExperimentFlow()
-    create_marker("end", f"image_captioning/metaflow/{run_id}")

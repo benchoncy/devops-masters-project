@@ -3,14 +3,14 @@ airflow:
     repository: apache/airflow
     tag: 2.6.3-python3.10
   executor: KubernetesExecutor
-  fernetKey: ${FERNET_KEY}
-  webserverSecretKey: ${WEB_SERVER_SECRET_KEY}
+  fernetKey: "${FERNET_KEY}"
+  webserverSecretKey: "${WEB_SERVER_SECRET_KEY}"
   config:
     AIRFLOW__CORE__LOAD_EXAMPLES: "False"
     AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL: "30"
   users:
     - username: admin
-      password: ${AIRFLOW_ADMIN_PASSWORD}
+      password: "${AIRFLOW_ADMIN_PASSWORD}"
       email: admin@example.com
       role: Admin
       firstName: admin
@@ -50,4 +50,4 @@ externalDatabase:
   host: ${AIRFLOW_DB_HOST}
   port: ${AIRFLOW_DB_PORT}
   user: ${AIRFLOW_DB_USERNAME}
-  password: ${AIRFLOW_DB_PASSWORD}
+  password: "${AIRFLOW_DB_PASSWORD}"

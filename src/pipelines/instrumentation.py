@@ -63,16 +63,13 @@ class S3MetricExporter(MetricExporter):
             attributes = json_data["resource_metrics"][0]["resource"]["attributes"]
             self.system_profile = attributes
         metrics = json_data["resource_metrics"][0]["scope_metrics"][0]["metrics"]
+        result = {}
         for metric in metrics:
             name = metric["name"]
             data = metric["data"]["data_points"][0]
-            time = data["time_unix_nano"]
-            value = data["value"]
-            self.metrics_data.append({
-                "name": name,
-                "time": time,
-                "value": value,
-            })
+            result["time"] = data["time_unix_nano"]
+            result[name] = data["value"]
+        self.metrics_data.append(result)
 
     def force_flush(self, timeout_millis=None):
         pass
@@ -155,7 +152,7 @@ def get_network_iops_callback(_: CallbackOptions):
 
 
 class TelemetryManager:
-    def __init__(self, tool: str, experiment_id: str, run_id: int):
+    def __init__(self, tool: str, experiment_id: str, run_id=None):
         self.tool = tool
         self.experiment_id = experiment_id
         self.run_id = run_id
@@ -163,7 +160,9 @@ class TelemetryManager:
         self.trace_provider = None
         self.tracer = None
 
-    def setup(self, step_id: str):
+    def setup(self, step_id, run_id=None):
+        if run_id is not None:
+            self.run_id = run_id
         self.meter_provider = self.setup_metrics(step_id=step_id)
         self.tracer, self.trace_provider = self.setup_traces(step_id=step_id)
 
@@ -188,7 +187,7 @@ class TelemetryManager:
     def setup_metrics(self,
                       step_id: str,
                       exporter=S3MetricExporter(),
-                      export_interval_seconds=15):
+                      export_interval_seconds=3):
         reader = PeriodicExportingMetricReader(
             exporter=exporter,
             export_interval_millis=export_interval_seconds * 1000,
