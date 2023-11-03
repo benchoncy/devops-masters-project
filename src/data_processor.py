@@ -3,7 +3,9 @@ import json
 import pandas as pd
 import logging
 from collections import defaultdict
+import matplotlib.pyplot as plt
 import os
+from tqdm import tqdm
 
 
 S3_BUCKET_NAME = 'bstuart-masters-project-logs'
@@ -14,8 +16,17 @@ EXPERIMENTS = {
         "exclusions": [18, 56],
     }
 }
+TOOLS = ['metaflow', 'airflow', 'sagemaker']
+VALUE_TO_DISPLAY = {
+    'percent': 'Percent (%)',
+    'duration': 'Duration (s)',
+    'count': 'Count',
+    'iops': 'IOPS',
+    'bytes': 'Bytes',
+}
 
 TMP_FILE = '/tmp/exp_data.json'
+OUTPUT_DIR = 'paper/images/generated/'
 
 logging.basicConfig(
     level=logging.INFO,
@@ -109,11 +120,15 @@ def summarise_experiment_data(data, config):
 
         summarised_metrics = []
         summarised_times = []
-        for run_id, run_data in tool_data.items():
+        summarised_span_durations = defaultdict(list)
+        for run_id, run_data in tqdm(tool_data.items()):
             if int(run_id) in config['exclusions']:
+                logging.info(
+                    f'Skipping run {run_id} due to explicit exclusion'
+                )
                 continue
-            logging.info(f'Summarising data for run {run_id}...')
-            time_to_first_span = run_data['spans'][first_span][0]['start_time'] \
+            time_to_first_span = \
+                run_data['spans'][first_span][0]['start_time'] \
                 - run_data['marker']['start']
             last_span_to_end = run_data['marker']['end'] \
                 - run_data['spans'][last_span][0]['end_time']
@@ -127,24 +142,18 @@ def summarise_experiment_data(data, config):
                         run_data['spans'][step][0]['start_time'] \
                         - run_data['spans'][steps[index - 1]][0]['end_time']
                     time_between_spans.append(time_since_last_span)
-                # Summarise metrics and spans by step
-                metrics_data = run_data['metrics'][step]
-                metrics_df = pd.DataFrame(metrics_data)
-                metrics_df.drop(columns=['time'], inplace=True)
-                step_runs = []
-                for column in metrics_df.columns:
-                    summary = summarise_metrics(metrics_df, column)
-                    step_runs.append(summary)
-                step_run_metrics = pd.DataFrame(step_runs).mean()
                 # Add duration from spans
                 span_data = run_data['spans'][step]
                 span_df = pd.DataFrame(span_data)
-                span_df.drop(columns=['parent', 'name'], inplace=True)
                 span_df['duration'] = \
                     span_df['end_time'] - span_df['start_time']
-                step_run_metrics['step'] = step
-                step_run_metrics['duration'] = span_df['duration']
-                summarised_metrics.append(step_run_metrics)
+                duration = span_df['duration'][0]
+                # Summarise metrics and spans by step
+                metrics_data = run_data['metrics'][step]
+                metrics_df = pd.DataFrame(metrics_data)
+                metrics_df['step'] = step
+                summarised_span_durations[step].append(duration)
+                summarised_metrics.append(metrics_df)
 
             # Summarise times
             time_between_spans = pd.Series(time_between_spans)
@@ -158,32 +167,103 @@ def summarise_experiment_data(data, config):
 
         if len(summarised_metrics) == 0:
             continue
-        summarised_metrics = pd.DataFrame(summarised_metrics)
-        summarised_metrics = summarised_metrics.groupby('step').mean()
+        summarised_metrics = pd.concat(summarised_metrics, ignore_index=True)
         result[tool]['metrics'] = summarised_metrics
 
         summarised_times = pd.DataFrame(summarised_times)
-        for column in summarised_times.columns:
-            result[tool][column] = summarise_metrics(summarised_times, column)
+        result[tool]['times'] = summarised_times
+
+        summarised_span_durations = pd.DataFrame(summarised_span_durations)
+        result[tool]['span_durations'] = summarised_span_durations
     return result
 
 
-def summarise_metrics(df, column):
-    grouped = df[column].agg(
-        min='min',
-        max='max',
-        mean='mean',
-        std='std',
-        p5=lambda x: x.quantile(0.05),
-        p95=lambda x: x.quantile(0.95),
-        p99=lambda x: x.quantile(0.99),
+def generate_plots(summary, _):
+    logging.info('Generating plots...')
+    for experiment, experiment_data in summary.items():
+        experiment_steps = EXPERIMENTS[experiment]['steps']
+        time_data = {
+            ('total_duration', f'Total duration - {experiment}',
+             'Duration (s)', f'{experiment}_total_duration.png'): [],
+            ('time_to_first_span', f'Startup time - {experiment}',
+             'Duration (s)', f'{experiment}_startup_time.png'): [],
+            ('last_span_to_end', f'Cleanup time - {experiment}',
+             'Duration (s)', f'{experiment}_cleanup_time.png'): [],
+            ('time_between_spans', f'Time between steps - {experiment}',
+             'Duration (s)', f'{experiment}_time_between_steps.png'): [],
+        }
+        metrics_data = {step: {} for step in experiment_steps}
+        duration_data = {step: {tool: [] for tool in TOOLS}
+                         for step in experiment_steps}
+
+        # Collect data into frames to more easily generate plots
+        for tool in TOOLS:
+            tool_data = experiment_data.get(tool, {})
+            if tool_data == {}:
+                continue
+            raw_times = tool_data['times']
+            for key in time_data.keys():
+                time_data[key].append(raw_times[key[0]])
+            for step in experiment_steps:
+                duration_data[step][tool].append(
+                    tool_data['span_durations'][step])
+                metrics = tool_data['metrics']
+                metrics = metrics[metrics['step'] == step]
+                metrics = metrics.drop(columns=['step', 'time'])
+                metrics_data[step][tool] = metrics
+
+        # Generate time plots
+        for (key, title, y_label, output_file), plot_data in time_data.items():
+            generate_box_plot(plot_data, title, y_label, output_file)
+
+        # Generate metrics plots
+        for step in experiment_steps:
+            plot_metrics_data = {}
+            for tool in TOOLS:
+                metrics = metrics_data[step].get(tool, pd.DataFrame())
+                if metrics.empty:
+                    continue
+                for column in metrics.columns:
+                    plot_metrics_data[column] = metrics[column]
+            for column, data in plot_metrics_data.items():
+                name, value = column.split('_')
+                generate_box_plot(
+                    data,
+                    f'Metric {name} - {experiment} / {step}',
+                    VALUE_TO_DISPLAY[value],
+                    f'{experiment}_{step}_metrics_{column}.png'
+                )
+
+        # Generate duration plots
+        for step in experiment_steps:
+            plot_duration_data = []
+            for tool in TOOLS:
+                if duration_data[step][tool] == []:
+                    continue
+                plot_duration_data.append(
+                    pd.concat(duration_data[step][tool], ignore_index=True)
+                )
+            generate_box_plot(
+                plot_duration_data,
+                f'Step duration - {experiment} / {step}',
+                VALUE_TO_DISPLAY['duration'],
+                f'{experiment}_{step}_duration.png'
+            )
+
+
+def generate_box_plot(data, title, y_axis_label, output_file):
+    plt.boxplot(
+        data,
+        meanline=True,
+        showmeans=True,
+        showfliers=False,
+        whis=(5, 95),
     )
-    grouped = grouped.add_prefix(f'{column}_')
-    return grouped
-
-
-def generate_plots(summary, raw_data):
-    print(summary)
+    plt.xticks(range(1, len(TOOLS) + 1), TOOLS)
+    plt.title(title)
+    plt.ylabel(y_axis_label)
+    plt.savefig(f'{OUTPUT_DIR}{output_file}')
+    plt.clf()
 
 
 if __name__ == '__main__':

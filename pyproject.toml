@@ -20,6 +20,7 @@ boto3 = "^1.28.68"
 kubernetes = "^28.1.0"
 fire = "^0.5.0"
 pandas = "^2.1.2"
+matplotlib = "^3.8.1"
 
 [build-system]
 requires = ["poetry-core"]
