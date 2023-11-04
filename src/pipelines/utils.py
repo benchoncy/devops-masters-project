@@ -1,6 +1,7 @@
 from PIL import Image
 import boto3
 from tqdm import tqdm
+import logging
 
 
 class S3Iterator:
@@ -25,8 +26,6 @@ class S3Iterator:
             Prefix=self.key_prefix,
             PaginationConfig=config
         )
-        if total is None:
-            total = sum([len(page['Contents']) for page in page_iterator])
         counter = tqdm(
             total=total,
             desc='Loading files from S3',

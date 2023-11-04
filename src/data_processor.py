@@ -72,11 +72,18 @@ def collect_experiment_data(experiment):
         key_prefix=f'{experiment}/'
     )
     for key, file in files:
-        logging.debug(f'Processing {key}...')
-        _, tool, run_id, name = key.split('/')
+        try:
+            _, tool, run_id, name = key.split('/')
+        except ValueError as e:
+            if e.args[0].startswith('not enough values to unpack'):
+                continue
+            raise e
         if name.endswith('_metrics.csv'):
             step = name.split('_')[0]
             data[tool][run_id]['metrics'][step] = read_csv_data(file)
+            # Convert time to from nanoseconds to seconds
+            for metric in data[tool][run_id]['metrics'][step]:
+                metric['time'] = metric['time'] / 1000000000
         if name.endswith('_span.csv'):
             step = name.split('_')[0]
             data[tool][run_id]['spans'][step] = read_csv_data(file)
@@ -152,6 +159,12 @@ def summarise_experiment_data(data, config):
                 metrics_data = run_data['metrics'][step]
                 metrics_df = pd.DataFrame(metrics_data)
                 metrics_df['step'] = step
+                # Replace time with relative time
+                metrics_df['time_rel'] = \
+                    metrics_df['time'] - span_df['start_time'][0]
+                metrics_df = metrics_df.drop(columns=['time'])
+                metrics_df['time_bucket'] = \
+                    metrics_df['time_rel'].apply(lambda x: get_bucket(x, 5))
                 summarised_span_durations[step].append(duration)
                 summarised_metrics.append(metrics_df)
 
@@ -178,77 +191,170 @@ def summarise_experiment_data(data, config):
     return result
 
 
+def get_bucket(x, bucket_size):
+    return int(x // bucket_size)*bucket_size
+
+
 def generate_plots(summary, _):
     logging.info('Generating plots...')
+    global_time_data = {
+        'total_duration': {
+            'config': ('Total duration - global',
+                       'Duration (s)', 'global_total_duration'),
+            'data': [[], [], []],
+        },
+        'time_to_first_span': {
+            'config': ('Startup time - global',
+                       'Duration (s)', 'global_startup_time'),
+            'data': [[], [], []],
+        },
+        'last_span_to_end': {
+            'config': ('Cleanup time - global',
+                       'Duration (s)', 'global_cleanup_time'),
+            'data': [[], [], []],
+        },
+        'time_between_spans': {
+            'config': ('Time between steps - global',
+                       'Duration (s)', 'global_time_between_steps'),
+            'data': [[], [], []],
+        },
+    }
+
     for experiment, experiment_data in summary.items():
         experiment_steps = EXPERIMENTS[experiment]['steps']
-        time_data = {
-            ('total_duration', f'Total duration - {experiment}',
-             'Duration (s)', f'{experiment}_total_duration.png'): [],
-            ('time_to_first_span', f'Startup time - {experiment}',
-             'Duration (s)', f'{experiment}_startup_time.png'): [],
-            ('last_span_to_end', f'Cleanup time - {experiment}',
-             'Duration (s)', f'{experiment}_cleanup_time.png'): [],
-            ('time_between_spans', f'Time between steps - {experiment}',
-             'Duration (s)', f'{experiment}_time_between_steps.png'): [],
-        }
-        metrics_data = {step: {} for step in experiment_steps}
-        duration_data = {step: {tool: [] for tool in TOOLS}
-                         for step in experiment_steps}
 
-        # Collect data into frames to more easily generate plots
-        for tool in TOOLS:
-            tool_data = experiment_data.get(tool, {})
-            if tool_data == {}:
-                continue
-            raw_times = tool_data['times']
-            for key in time_data.keys():
-                time_data[key].append(raw_times[key[0]])
-            for step in experiment_steps:
-                duration_data[step][tool].append(
-                    tool_data['span_durations'][step])
-                metrics = tool_data['metrics']
-                metrics = metrics[metrics['step'] == step]
-                metrics = metrics.drop(columns=['step', 'time'])
-                metrics_data[step][tool] = metrics
+        # Clean data for plotting
+        time_data, metrics_data, duration_data = \
+            clean_plot_data(experiment, experiment_data, experiment_steps)
 
         # Generate time plots
         for (key, title, y_label, output_file), plot_data in time_data.items():
             generate_box_plot(plot_data, title, y_label, output_file)
+            box_plot_data = [data.median() for data in plot_data]
+            for index, data in enumerate(plot_data):
+                global_time_data[key]['data'][index].append(data)
+            generate_bar_diff_plot(box_plot_data, title, output_file)
 
-        # Generate metrics plots
         for step in experiment_steps:
-            plot_metrics_data = {}
-            for tool in TOOLS:
-                metrics = metrics_data[step].get(tool, pd.DataFrame())
-                if metrics.empty:
-                    continue
-                for column in metrics.columns:
-                    plot_metrics_data[column] = metrics[column]
-            for column, data in plot_metrics_data.items():
-                name, value = column.split('_')
-                generate_box_plot(
-                    data,
-                    f'Metric {name} - {experiment} / {step}',
-                    VALUE_TO_DISPLAY[value],
-                    f'{experiment}_{step}_metrics_{column}.png'
-                )
+            generate_step_plots(step, experiment, metrics_data, duration_data)
 
-        # Generate duration plots
+    # Generate global time plots
+    for metric in global_time_data:
+        config = global_time_data[metric]['config']
+        plot_data = global_time_data[metric]['data']
+        plot_data = plot_data[:2]
+        plot_data = [pd.concat(data, ignore_index=True) for data in plot_data]
+        generate_box_plot(
+            plot_data,
+            f'{config[0]}',
+            f'{config[1]}',
+            f'{config[2]}_box.png'
+        )
+        box_plot_data = [data.median() for data in plot_data]
+        generate_bar_diff_plot(
+            box_plot_data,
+            f'Diff {config[0].lower()}',
+            f'{config[2]}_bar_diff.png'
+        )
+
+
+def clean_plot_data(experiment, experiment_data, experiment_steps):
+    time_data = {
+        ('total_duration', f'Total duration - {experiment}',
+         'Duration (s)', f'{experiment}_total_duration.png'): [],
+        ('time_to_first_span', f'Startup time - {experiment}',
+         'Duration (s)', f'{experiment}_startup_time.png'): [],
+        ('last_span_to_end', f'Cleanup time - {experiment}',
+         'Duration (s)', f'{experiment}_cleanup_time.png'): [],
+        ('time_between_spans', f'Time between steps - {experiment}',
+         'Duration (s)', f'{experiment}_time_between_steps.png'): [],
+    }
+    metrics_data = {step: {} for step in experiment_steps}
+    duration_data = {step: {tool: [] for tool in TOOLS}
+                     for step in experiment_steps}
+
+    # Collect data into frames to more easily generate plots
+    for tool in TOOLS:
+        tool_data = experiment_data.get(tool, {})
+        if tool_data == {}:
+            continue
+        raw_times = tool_data['times']
+        for key in time_data.keys():
+            time_data[key].append(raw_times[key[0]])
         for step in experiment_steps:
-            plot_duration_data = []
-            for tool in TOOLS:
-                if duration_data[step][tool] == []:
-                    continue
-                plot_duration_data.append(
-                    pd.concat(duration_data[step][tool], ignore_index=True)
-                )
-            generate_box_plot(
-                plot_duration_data,
-                f'Step duration - {experiment} / {step}',
-                VALUE_TO_DISPLAY['duration'],
-                f'{experiment}_{step}_duration.png'
+            duration_data[step][tool].append(
+                tool_data['span_durations'][step])
+            metrics = tool_data['metrics']
+            metrics = metrics[metrics['step'] == step]
+            metrics_data[step][tool] = metrics
+
+    return time_data, metrics_data, duration_data
+
+
+def generate_step_plots(step, experiment, metrics_data, duration_data):
+    # Generate metric plots
+    box_plot_metrics_data = defaultdict(list)
+    line_plot_metrics_data = defaultdict(list)
+    bar_diff_metrics_data = defaultdict(list)
+    for tool in TOOLS:
+        metrics = metrics_data[step].get(tool, pd.DataFrame())
+        if metrics.empty:
+            continue
+        for column in metrics.columns:
+            if column in ['step', 'time_rel', 'time_bucket']:
+                continue
+            box_plot_metrics_data[column].append(metrics[column])
+            line_plot_metrics_data[column].append(
+                metrics.groupby('time_bucket')[column].mean()
             )
+            bar_diff_metrics_data[column].append(
+                metrics[column].median()
+            )
+
+    for column in box_plot_metrics_data.keys():
+        name, value = column.split('_')
+        box_data = box_plot_metrics_data[column]
+        line_data = line_plot_metrics_data[column]
+        bar_diff_data = bar_diff_metrics_data[column]
+        generate_box_plot(
+            box_data,
+            f'Metric {name} - {experiment} / {step}',
+            VALUE_TO_DISPLAY[value],
+            f'{experiment}_{step}_metrics_{column}_box.png'
+        )
+        generate_line_plot(
+            line_data,
+            f'Metric {name} - {experiment} / {step}',
+            VALUE_TO_DISPLAY[value],
+            'Time (s)',
+            f'{experiment}_{step}_metrics_{column}_line.png'
+        )
+        generate_bar_diff_plot(
+            bar_diff_data,
+            f'Diff metric {name} - {experiment} / {step}',
+            f'{experiment}_{step}_metrics_{column}_bar_diff.png'
+        )
+
+    # Generate duration plots
+    plot_duration_data = []
+    for tool in TOOLS:
+        if duration_data[step][tool] == []:
+            continue
+        plot_duration_data.append(
+            pd.concat(duration_data[step][tool], ignore_index=True)
+        )
+    generate_box_plot(
+        plot_duration_data,
+        f'Step duration - {experiment} / {step}',
+        VALUE_TO_DISPLAY['duration'],
+        f'{experiment}_{step}_duration_box.png'
+    )
+    plot_duration_data = [data.median() for data in plot_duration_data]
+    generate_bar_diff_plot(
+        plot_duration_data,
+        f'Diff step duration - {experiment} / {step}',
+        f'{experiment}_{step}_duration_bar_diff.png'
+    )
 
 
 def generate_box_plot(data, title, y_axis_label, output_file):
@@ -262,6 +368,36 @@ def generate_box_plot(data, title, y_axis_label, output_file):
     plt.xticks(range(1, len(TOOLS) + 1), TOOLS)
     plt.title(title)
     plt.ylabel(y_axis_label)
+    plt.savefig(f'{OUTPUT_DIR}{output_file}')
+    plt.clf()
+
+
+def generate_line_plot(data, title, y_axis_label, x_axis_label, output_file):
+    for plot_data in data:
+        plt.plot(plot_data)
+    plt.title(title)
+    plt.ylabel(y_axis_label)
+    plt.xlabel(x_axis_label)
+    plt.legend(TOOLS)
+    plt.savefig(f'{OUTPUT_DIR}{output_file}')
+    plt.clf()
+
+
+def generate_bar_diff_plot(data, title, output_file):
+    final_data = []
+    baseline = data[0]
+    for index, value in enumerate(data):
+        if index == 0:
+            final_data.append(0)
+            continue
+        if baseline == 0:
+            final_data.append(value)
+            continue
+        final_data.append((value - baseline) / baseline * 100)
+    plt.bar(TOOLS[:2], final_data, color=['blue', 'orange', 'green'])
+    plt.title(title)
+    plt.ylabel('Relative Percent Diff (%)')
+    plt.figtext(0.01, 0.01, '*Metaflow as baseline')
     plt.savefig(f'{OUTPUT_DIR}{output_file}')
     plt.clf()
 
