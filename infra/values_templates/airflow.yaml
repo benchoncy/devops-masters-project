@@ -1,7 +1,7 @@
 airflow:
   image:
-    repository: apache/airflow
-    tag: 2.6.3-python3.10
+    repository: "${IMAGE}"
+    tag: latest
   executor: KubernetesExecutor
   fernetKey: "${FERNET_KEY}"
   webserverSecretKey: "${WEB_SERVER_SECRET_KEY}"
@@ -31,6 +31,11 @@ airflow:
         memory: ${WORKFLOW_MEMORY_ALLOCATION}
     podLabels:
       orchestrator: "airflow"
+dags:
+  gitSync:
+    enabled: true
+    repo: https://github.com/benchoncy/devops-masters-project.git
+    repoSubPath: src
 web:
   service:
     type: LoadBalancer

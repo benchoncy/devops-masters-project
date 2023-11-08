@@ -1,7 +1,29 @@
 from PIL import Image
 import boto3
+import pickle
 from tqdm import tqdm
-import logging
+
+
+DUMP_BUCKET = 'bstuart-masters-project-dump'
+s3 = boto3.client('s3')
+
+
+def to_s3(obj, key):
+    obj = pickle.dumps(obj)
+    s3.put_object(
+        Body=obj,
+        Bucket=DUMP_BUCKET,
+        Key=key,
+    )
+
+
+def from_s3(key):
+    response = s3.get_object(
+        Bucket=DUMP_BUCKET,
+        Key=key,
+    )
+    obj = pickle.loads(response['Body'].read())
+    return obj
 
 
 class S3Iterator:

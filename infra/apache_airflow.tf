@@ -3,6 +3,7 @@
 locals {
   airflow_namespace = "airflow"
   airflow_values = {
+    IMAGE = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/benchoncy-${local.project_name}/airflow"
     FERNET_KEY = random_id.fernet_key.id
     WEB_SERVER_SECRET_KEY = random_password.web_server_secret_key.result
     AIRFLOW_ADMIN_PASSWORD = random_password.admin_password.result
