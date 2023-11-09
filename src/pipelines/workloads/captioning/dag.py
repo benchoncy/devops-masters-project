@@ -5,8 +5,10 @@ from src.pipelines.instrumentation import TelemetryManager
 from src.pipelines.workloads.captioning.workload import load_models, generate_captions, save_captions
 from src.pipelines.utils import S3ImageLoader, to_s3, from_s3
 
+tm = TelemetryManager(tool="airflow", experiment_id="image-captioning")
 
-def start(run_id, tm):
+
+def start(run_id):
     tm.setup(run_id=run_id, step_id="start")
     with tm.tracer.start_as_current_span("start"):
         print("Starting experiment")
@@ -19,7 +21,7 @@ def start(run_id, tm):
     tm.shutdown()
 
 
-def inference(run_id, tm):
+def inference(run_id):
     tm.setup(run_id=run_id, step_id="inference")
     with tm.tracer.start_as_current_span("inference"):
         model = from_s3(f"experiment/{tm.experiment_id}/{tm.tool}/model")
@@ -39,7 +41,7 @@ def inference(run_id, tm):
     tm.shutdown()
 
 
-def end(run_id, tm, captions):
+def end(run_id):
     tm.setup(run_id=run_id, step_id="end")
     with tm.tracer.start_as_current_span("end"):
         captions = from_s3(f"experiment/{tm.experiment_id}/{tm.tool}/captions")
@@ -47,23 +49,18 @@ def end(run_id, tm, captions):
     tm.shutdown()
 
 
-tm = TelemetryManager(tool="airflow", experiment_id="image-captioning")
-
-
 with DAG(
     dag_id="image-captioning",
     start_date=datetime(2021, 1, 1),
-    schedule_interval=None,  # Externally triggered
+    schedule_interval="0,15,30,45 * * * *",  # every 15 minutes
+    catchup=False,
+    max_active_runs=1,
         ) as dag:
     start = PythonOperator(
         task_id="start",
         python_callable=start,
         op_kwargs={
             "run_id": "{{ run_id }}",
-            "tm": tm,
-        },
-        params={
-            "run_id": "0",
         },
     )
     inference = PythonOperator(
@@ -71,10 +68,6 @@ with DAG(
         python_callable=inference,
         op_kwargs={
             "run_id": "{{ run_id }}",
-            "tm": tm,
-            "model": "{{ model }}",
-            "image_processor": "{{ image_processor }}",
-            "tokenizer": "{{ tokenizer }}",
         },
     )
     end = PythonOperator(
@@ -82,8 +75,6 @@ with DAG(
         python_callable=end,
         op_kwargs={
             "run_id": "{{ run_id }}",
-            "tm": tm,
-            "captions": "{{ captions }}",
         },
     )
     start >> inference >> end
