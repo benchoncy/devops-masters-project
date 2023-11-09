@@ -40,6 +40,11 @@ web:
   service:
     type: LoadBalancer
     externalPort: 80
+serviceAccount:
+  create: true
+  name: "airflow"
+  annotations:
+    eks.amazonaws.com/role-arn: "${{ ROLE_ARN }}"
 workers:
   enabled: false
 redis:
