@@ -34,7 +34,7 @@ class ExperimentFlow(FlowSpec):
             tokenizer = from_s3(f"experiment/{self.tm.experiment_id}/{self.tm.tool}/tokenizer")
             image_loader = S3ImageLoader(
                 bucket_name="bstuart-masters-project-dataset",
-                key_prefix='images/objects-in-the-lab/images/',
+                key_prefix='images/objects-in-the-lab/images_small/',
                 max_keys=20
             )
             captions = generate_captions(

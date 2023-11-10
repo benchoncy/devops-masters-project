@@ -53,7 +53,7 @@ resource "aws_rds_cluster" "airflow" {
   cluster_identifier      = "${local.project_name}-airflow-community"
   engine                  = "aurora-postgresql"
   engine_mode             = "provisioned"
-  engine_version          = "13.6"
+  engine_version          = "13.9"
   database_name           = "airflow"
   master_username         = "master"
   master_password         = random_password.airflow_db_password.result

@@ -35,6 +35,7 @@ dags:
   gitSync:
     enabled: true
     repo: https://github.com/benchoncy/devops-masters-project.git
+    branch: main
     repoSubPath: src
 web:
   service:

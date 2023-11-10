@@ -35,7 +35,7 @@ resource "aws_rds_cluster" "metaflow" {
   cluster_identifier      = "${local.project_name}-metaflow"
   engine                  = "aurora-postgresql"
   engine_mode             = "provisioned"
-  engine_version          = "13.6"
+  engine_version          = "13.9"
   database_name           = "metaflow"
   master_username         = "master"
   master_password         = random_password.metaflow_db_password.result
