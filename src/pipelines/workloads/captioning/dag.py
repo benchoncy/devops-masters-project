@@ -1,9 +1,9 @@
 from airflow import DAG
 from datetime import datetime
 from airflow.operators.python_operator import PythonOperator
-from ...instrumentation import TelemetryManager
-from ...utils import S3ImageLoader, to_s3, from_s3
-from .workload import load_models, generate_captions, save_captions
+from src.pipelines.instrumentation import TelemetryManager
+from src.pipelines.workloads.captioning.workload import load_models, generate_captions, save_captions
+from src.pipelines.utils import S3ImageLoader, to_s3, from_s3
 
 tm = TelemetryManager(tool="airflow", experiment_id="image-captioning")
 
