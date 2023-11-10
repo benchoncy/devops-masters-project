@@ -8,13 +8,12 @@ COPY poetry.lock pyproject.toml ./
 
 # Install src
 COPY src/ ./src/
-RUN poetry config virtualenvs.create false && \
-    poetry install --only-root
-
-USER root
-RUN rm -rf src/
-USER airflow
+RUN poetry build
 
 # Install dependencies
 RUN poetry export --without-hashes --format=requirements.txt > requirements.txt
-RUN pip install -r requirements.txt
+RUN pip install -r requirements.txt ./dist/*.whl
+
+USER root
+RUN rm -rf src/ poetry.lock pyproject.toml requirements.txt dist/
+USER airflow
