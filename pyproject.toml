@@ -3,7 +3,6 @@ name = "src"
 version = "0.1.0"
 description = ""
 authors = ["Ben Stuart <ben@benstuart.ie>"]
-readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "3.10.*"
