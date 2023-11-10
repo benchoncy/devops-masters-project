@@ -5,7 +5,12 @@ RUN pip install poetry
 
 # Copy poetry.lock and pyproject.toml
 COPY poetry.lock pyproject.toml ./
-RUN poetry export --without-hashes --format=requirements.txt > requirements.txt
+
+# Install src
+COPY src/ ./src/
+RUN poetry install --only-root
+RUN rm -rf src/
 
 # Install dependencies
+RUN poetry export --without-hashes --format=requirements.txt > requirements.txt
 RUN pip install -r requirements.txt
