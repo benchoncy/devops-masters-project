@@ -3,7 +3,10 @@
 from transformers import \
     GPT2TokenizerFast, ViTImageProcessor, VisionEncoderDecoderModel
 from tqdm import tqdm
-from src.pipelines.utils import S3ImageLoader
+from src.pipelines.utils import S3ImageLoader, to_s3, from_s3
+from src.pipelines.instrumentation import profiler
+
+experiment_id = "image-captioning"
 
 
 def load_models():
@@ -43,31 +46,37 @@ def generate_captions(images, model, image_processor, tokenizer):
     return captions
 
 
-def save_captions(captions):
-    # Save the captions as a csv
-    with open('captions.csv', 'w') as f:
-        for name, caption in captions.items():
-            f.write(f'{name},{caption}\n')
+# Steps
+def step_1_load(tool, run_id):
+    @profiler(tool=tool, experiment_id=experiment_id,
+              run_id=run_id, step_id="load_models")
+    def load():
+        print("Starting experiment")
+        print("Loading models")
+        model, image_processor, tokenizer \
+            = load_models()
+        to_s3(model, f"experiment/{experiment_id}/{tool}/model")
+        to_s3(image_processor, f"experiment/{experiment_id}/{tool}/image_processor")
+        to_s3(tokenizer, f"experiment/{experiment_id}/{tool}/tokenizer")
+    load()
 
 
-if __name__ == '__main__':
-    S3_BUCKET_NAME = 'bstuart-masters-project-dataset'
-
-    # Load the model
-    model, image_processor, tokenizer = load_models()
-
-    # Load the images
-    image_loader = S3ImageLoader(
-        bucket_name=S3_BUCKET_NAME,
-        key_prefix='images/objects-in-the-lab/images/',
-        max_keys=10
-    )
-
-    # Generate captions
-    captions = generate_captions(image_loader,
-                                 model,
-                                 image_processor,
-                                 tokenizer)
-
-    # Save the captions
-    save_captions(captions)
+def step_2_inference(tool, run_id):
+    @profiler(tool=tool, experiment_id=experiment_id,
+              run_id=run_id, step_id="inference")
+    def inference():
+        model = from_s3(f"experiment/{experiment_id}/{tool}/model")
+        image_processor = from_s3(f"experiment/{experiment_id}/{tool}/image_processor")
+        tokenizer = from_s3(f"experiment/{experiment_id}/{tool}/tokenizer")
+        image_loader = S3ImageLoader(
+            bucket_name="bstuart-masters-project-dataset",
+            key_prefix='images/objects-in-the-lab/images_small/',
+            max_keys=60
+        )
+        captions = generate_captions(
+            image_loader,
+            model,
+            image_processor,
+            tokenizer)
+        to_s3(captions, f"experiment/{experiment_id}/{tool}/captions")
+    inference()

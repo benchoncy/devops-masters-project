@@ -271,3 +271,15 @@ class TelemetryManager:
         trace.set_tracer_provider(trace_provider)
         tracer = trace.get_tracer(self.experiment_id)
         return tracer, trace_provider
+
+
+def profiler(tool: str, experiment_id: str, run_id: str, step_id: str):
+    def decorator(func):
+        def wrapper():
+            tm = TelemetryManager(tool=tool, experiment_id=experiment_id)
+            tm.setup(run_id=run_id, step_id=step_id)
+            with tm.tracer.start_as_current_span(step_id):
+                func()
+            tm.shutdown()
+        return wrapper
+    return decorator
