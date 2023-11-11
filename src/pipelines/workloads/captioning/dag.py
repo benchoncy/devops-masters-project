@@ -5,10 +5,9 @@ from src.pipelines.instrumentation import TelemetryManager
 from src.pipelines.workloads.captioning.workload import load_models, generate_captions, save_captions
 from src.pipelines.utils import S3ImageLoader, to_s3, from_s3
 
-tm = TelemetryManager(tool="airflow", experiment_id="image-captioning")
-
 
 def start(run_id):
+    tm = TelemetryManager(tool="airflow", experiment_id="image-captioning")
     tm.setup(run_id=run_id, step_id="start")
     with tm.tracer.start_as_current_span("start"):
         print("Starting experiment")
@@ -22,6 +21,7 @@ def start(run_id):
 
 
 def inference(run_id):
+    tm = TelemetryManager(tool="airflow", experiment_id="image-captioning")
     tm.setup(run_id=run_id, step_id="inference")
     with tm.tracer.start_as_current_span("inference"):
         model = from_s3(f"experiment/{tm.experiment_id}/{tm.tool}/model")
@@ -42,6 +42,7 @@ def inference(run_id):
 
 
 def end(run_id):
+    tm = TelemetryManager(tool="airflow", experiment_id="image-captioning")
     tm.setup(run_id=run_id, step_id="end")
     with tm.tracer.start_as_current_span("end"):
         captions = from_s3(f"experiment/{tm.experiment_id}/{tm.tool}/captions")
@@ -52,7 +53,7 @@ def end(run_id):
 with DAG(
     dag_id="image-captioning",
     start_date=datetime(2021, 1, 1),
-    schedule_interval="0,15,30,45 * * * *",  # every 15 minutes
+    schedule_interval=None,
     catchup=False,
     max_active_runs=1,
         ) as dag:

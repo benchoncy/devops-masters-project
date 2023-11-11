@@ -13,14 +13,14 @@ class ExperimentFlow(FlowSpec):
         from src.pipelines.instrumentation import TelemetryManager
         tm = TelemetryManager(tool="metaflow", experiment_id="image-captioning")
         tm.setup(run_id=self.run_id, step_id="start")
-        with self.tm.tracer.start_as_current_span("start"):
+        with tm.tracer.start_as_current_span("start"):
             print("Starting experiment")
             print("Loading models")
             model, image_processor, tokenizer \
                 = load_models()
-            to_s3(model, f"experiment/{self.tm.experiment_id}/{self.tm.tool}/model")
-            to_s3(image_processor, f"experiment/{self.tm.experiment_id}/{self.tm.tool}/image_processor")
-            to_s3(tokenizer, f"experiment/{self.tm.experiment_id}/{self.tm.tool}/tokenizer")
+            to_s3(model, f"experiment/{tm.experiment_id}/{tm.tool}/model")
+            to_s3(image_processor, f"experiment/{tm.experiment_id}/{tm.tool}/image_processor")
+            to_s3(tokenizer, f"experiment/{tm.experiment_id}/{tm.tool}/tokenizer")
         tm.shutdown()
         self.next(self.inference)
 
@@ -33,9 +33,9 @@ class ExperimentFlow(FlowSpec):
         tm = TelemetryManager(tool="metaflow", experiment_id="image-captioning")
         tm.setup(run_id=self.run_id, step_id="inference")
         with tm.tracer.start_as_current_span("inference"):
-            model = from_s3(f"experiment/{self.tm.experiment_id}/{self.tm.tool}/model")
-            image_processor = from_s3(f"experiment/{self.tm.experiment_id}/{self.tm.tool}/image_processor")
-            tokenizer = from_s3(f"experiment/{self.tm.experiment_id}/{self.tm.tool}/tokenizer")
+            model = from_s3(f"experiment/{tm.experiment_id}/{tm.tool}/model")
+            image_processor = from_s3(f"experiment/{tm.experiment_id}/{tm.tool}/image_processor")
+            tokenizer = from_s3(f"experiment/{tm.experiment_id}/{tm.tool}/tokenizer")
             image_loader = S3ImageLoader(
                 bucket_name="bstuart-masters-project-dataset",
                 key_prefix='images/objects-in-the-lab/images_small/',
@@ -46,7 +46,7 @@ class ExperimentFlow(FlowSpec):
                 model,
                 image_processor,
                 tokenizer)
-            to_s3(captions, f"experiment/{self.tm.experiment_id}/{self.tm.tool}/captions")
+            to_s3(captions, f"experiment/{tm.experiment_id}/{tm.tool}/captions")
         tm.shutdown()
         self.next(self.end)
 
@@ -59,7 +59,7 @@ class ExperimentFlow(FlowSpec):
         tm = TelemetryManager(tool="metaflow", experiment_id="image-captioning")
         tm.setup(run_id=self.run_id, step_id="end")
         with tm.tracer.start_as_current_span("end"):
-            captions = from_s3(f"experiment/{self.tm.experiment_id}/{self.tm.tool}/captions")
+            captions = from_s3(f"experiment/{tm.experiment_id}/{tm.tool}/captions")
             save_captions(captions)
         tm.shutdown()
 
