@@ -1,8 +1,8 @@
 # Common resources used by all tools.
 
 locals {
-  workflow_cpu_allocation = "1"
-  workflow_memory_allocation = "1GB"
+  workflow_cpu_allocation = "2"
+  workflow_memory_allocation = "8Gi"
 }
 
 # Generate and store the admin password in AWS SSM Parameter Store

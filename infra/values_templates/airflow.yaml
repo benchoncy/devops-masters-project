@@ -1,7 +1,7 @@
 airflow:
   image:
     repository: "${IMAGE}"
-    tag: latest
+    tag: main
   executor: KubernetesExecutor
   fernetKey: "${FERNET_KEY}"
   webserverSecretKey: "${WEB_SERVER_SECRET_KEY}"
