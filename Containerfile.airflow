@@ -12,7 +12,7 @@ RUN poetry build
 
 # Install dependencies
 RUN pip install -r requirements.airflow.txt ./dist/*.whl \
- --constraints "https://raw.githubusercontent.com/apache/airflow/constraints-2.6.3/constraints-3.10.txt"
+ --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.6.3/constraints-3.10.txt"
 
 USER root
 RUN rm -rf src/ poetry.lock pyproject.toml requirements.airflow.txt dist/
