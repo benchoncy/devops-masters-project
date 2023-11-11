@@ -6,7 +6,7 @@ from tqdm import tqdm
 from src.pipelines.utils import S3ImageLoader, to_s3, from_s3
 from src.pipelines.instrumentation import profiler
 
-experiment_id = "image-captioning"
+experiment_id = "captioning"
 
 
 def load_models():
@@ -71,7 +71,7 @@ def step_2_inference(tool, run_id):
         image_loader = S3ImageLoader(
             bucket_name="bstuart-masters-project-dataset",
             key_prefix='images/objects-in-the-lab/images_small/',
-            max_keys=60
+            max_keys=50
         )
         captions = generate_captions(
             image_loader,

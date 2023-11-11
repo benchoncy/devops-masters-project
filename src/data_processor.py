@@ -11,9 +11,9 @@ from tqdm import tqdm
 S3_BUCKET_NAME = 'bstuart-masters-project-logs'
 
 EXPERIMENTS = {
-    "image-captioning": {
-        "steps": ["start", "inference", "end"],
-        "exclusions": [18, 56],
+    "captioning": {
+        "steps": ["load_models", "inference"],
+        "exclusions": [],
     }
 }
 TOOLS = ['metaflow', 'airflow', 'sagemaker']

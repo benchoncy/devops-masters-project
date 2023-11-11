@@ -9,7 +9,7 @@ def main():
     )
     for key, image in loader:
         # Downsize image
-        image.thumbnail((128, 128))
+        image.thumbnail((256, 256))
         filename = key.split("/")[-1]
         # Save image
         with io.BytesIO() as output:
