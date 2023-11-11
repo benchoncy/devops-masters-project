@@ -71,7 +71,7 @@ def step_2_inference(tool, run_id):
         image_loader = S3ImageLoader(
             bucket_name="bstuart-masters-project-dataset",
             key_prefix='images/objects-in-the-lab/images_small/',
-            max_keys=50
+            max_keys=100
         )
         captions = generate_captions(
             image_loader,
