@@ -4,17 +4,16 @@ FROM apache/airflow:2.6.3-python3.10
 RUN pip install poetry
 
 # Copy poetry.lock and pyproject.toml
-COPY poetry.lock pyproject.toml ./
+COPY poetry.lock pyproject.toml requirements.airflow.txt ./
 
 # Install src
 COPY src/ ./src/
 RUN poetry build
 
 # Install dependencies
-RUN poetry export --without-hashes --format=requirements.txt > requirements.txt
-RUN pip install -r requirements.txt ./dist/*.whl \
-    --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.6.3/constraints-3.10.txt"
+RUN pip install -r requirements.airflow.txt ./dist/*.whl \
+RUN pip install -r "https://raw.githubusercontent.com/apache/airflow/constraints-2.6.3/constraints-3.10.txt"
 
 USER root
-RUN rm -rf src/ poetry.lock pyproject.toml requirements.txt dist/
+RUN rm -rf src/ poetry.lock pyproject.toml requirements.airflow.txt dist/
 USER airflow

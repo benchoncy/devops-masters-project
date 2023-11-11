@@ -6,19 +6,21 @@ authors = ["Ben Stuart <ben@benstuart.ie>"]
 
 [tool.poetry.dependencies]
 python = "3.10.*"
-opentelemetry-api = "^1.20.0"
-opentelemetry-sdk = "^1.20.0"
+opentelemetry-api = "1.15.0"
+opentelemetry-sdk = "1.15.0"
 metaflow = "^2.9.15"
-psutil = "^5.9.5"
+psutil = "5.9.5"
 py-cpuinfo = "^9.0.0"
 transformers = "4.34.0"
 pillow = "^10.1.0"
 torch = "2.1.*"
-opentelemetry-exporter-otlp = "^1.20.0"
-boto3 = "^1.28.68"
-kubernetes = "^28.1.0"
+opentelemetry-exporter-otlp = "1.15.0"
+boto3 = "1.26.161"
+boto = "2.49.0"
+botocore = "1.29.161"
+kubernetes = "23.6.0"
 fire = "^0.5.0"
-pandas = "^2.1.2"
+pandas = "1.5.3"
 matplotlib = "^3.8.1"
 
 [build-system]

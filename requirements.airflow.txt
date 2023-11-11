@@ -1,0 +1,9 @@
+torch==2.1.0
+matplotlib
+pandas
+pillow
+psutil
+py-cpuinfo
+opentelemetry-api
+opentelemetry-sdk
+opentelemetry-exporter-otlp
