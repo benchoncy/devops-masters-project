@@ -53,7 +53,7 @@ resource "aws_eks_node_group" "main" {
 
   ami_type = "AL2_x86_64"
   capacity_type = "ON_DEMAND"
-  disk_size = 20
+  disk_size = 100
   instance_types = ["m5.xlarge"]
 
   scaling_config {

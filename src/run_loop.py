@@ -15,7 +15,7 @@ class Runner:
         while index < (start+iterations) if iterations else True:
             run_id = index
             command = f"python -m src.pipelines.workloads.{experiment}.flow " \
-                      f"run --with kubernetes --run-id {run_id}"
+                      f"run --with kubernetes --run_id {run_id}"
             create_marker("start", f"{experiment}/metaflow/{run_id}")
             os.system(command)
             create_marker("end", f"{experiment}/metaflow/{run_id}")
