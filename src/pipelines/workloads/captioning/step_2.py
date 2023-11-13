@@ -1,4 +1,4 @@
-from workload import step_2_inference
+from src.pipelines.workloads.captioning.workload import step_2_inference
 import argparse
 
 args = argparse.ArgumentParser()

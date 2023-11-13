@@ -5,6 +5,7 @@ from sagemaker.workflow.pipeline import Pipeline
 from sagemaker.workflow.steps import ProcessingStep
 from sagemaker.processing import ScriptProcessor
 from sagemaker.workflow.parallelism_config import ParallelismConfiguration
+from src.pipelines.instrumentation import create_marker
 
 experiment_id = "captioning"
 account_id = boto3.client("sts").get_caller_identity()["Account"]
@@ -29,7 +30,7 @@ def make_step(name, step, depends_on=[], run_id=0):
         processor=processor,
         depends_on=depends_on,
         step_args=processor.run(
-            code=f"./step_{step}.py",
+            code=f"src/pipelines/workloads/{experiment_id}/step_{step}.py",
             arguments=["--run-id", str(run_id)],
         ),
     )
@@ -61,6 +62,7 @@ if __name__ == "__main__":
     print("Uploading pipeline definition")
     pipeline = build_pipeline(args.run_id)
     print("Starting pipeline")
+    create_marker("start", f"{experiment_id}/sagemaker/{args.run_id}")
     execution = pipeline.start()
     print("Waiting for pipeline to finish")
     execution.wait()

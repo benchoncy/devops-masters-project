@@ -1,4 +1,4 @@
-from workload import step_1_load
+from src.pipelines.workloads.captioning.workload import step_1_load
 import argparse
 
 args = argparse.ArgumentParser()

@@ -44,7 +44,6 @@ class Runner:
         while index < (start+iterations) if iterations else True:
             run_id = index
             command = f"python -m src.pipelines.workloads.{experiment}.sagemaker --run-id {run_id}"
-            create_marker("start", f"{experiment}/sagemaker/{run_id}")
             os.system(command)
             create_marker("end", f"{experiment}/sagemaker/{run_id}")
             index += 1
