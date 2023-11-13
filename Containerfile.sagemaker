@@ -1,4 +1,4 @@
-FROM 763104351884.dkr.ecr.eu-west-1.amazonaws.com/pytorch-training:2.1.0-cpu-py310-ubuntu20.04-sagemaker
+FROM pytorch/pytorch:2.1.0-cuda12.1-cudnn8-runtime
 
 # Install poetry
 RUN pip install poetry
@@ -10,3 +10,5 @@ COPY src ./src
 # Install dependencies
 RUN poetry config virtualenvs.create false \
     && poetry install --only main
+
+ENTRYPOINT ["python"]

@@ -39,6 +39,16 @@ class Runner:
                         running = False
             index += 1
 
+    def sagemaker(self, experiment, start=0, iterations=None):
+        index = start
+        while index < (start+iterations) if iterations else True:
+            run_id = index
+            command = f"python -m src.pipelines.workloads.{experiment}.sagemaker --run-id {run_id}"
+            create_marker("start", f"{experiment}/sagemaker/{run_id}")
+            os.system(command)
+            create_marker("end", f"{experiment}/sagemaker/{run_id}")
+            index += 1
+
 
 if __name__ == '__main__':
     fire.Fire(Runner)
