@@ -12,8 +12,8 @@ S3_BUCKET_NAME = 'bstuart-masters-project-logs'
 
 EXPERIMENTS = {
     "captioning": {
-        "steps": ["load_models", "inference"],
-        "exclusions": [],
+        "steps": ["load", "inference"],
+        "exclusions": [61, 62, 63, 64, 356, 132, 167, 169, 170, 234, 235, 299],
     }
 }
 TOOLS = ['metaflow', 'airflow', 'sagemaker']
@@ -129,44 +129,48 @@ def summarise_experiment_data(data, config):
         summarised_times = []
         summarised_span_durations = defaultdict(list)
         for run_id, run_data in tqdm(tool_data.items()):
-            if int(run_id) in config['exclusions']:
-                logging.info(
-                    f'Skipping run {run_id} due to explicit exclusion'
-                )
-                continue
-            time_to_first_span = \
-                run_data['spans'][first_span][0]['start_time'] \
-                - run_data['marker']['start']
-            last_span_to_end = run_data['marker']['end'] \
-                - run_data['spans'][last_span][0]['end_time']
-            total_duration = run_data['marker']['end'] \
-                - run_data['marker']['start']
-            time_between_spans = []
-            for index, step in enumerate(steps):
-                if index != 0:
-                    # Calculate time between spans
-                    time_since_last_span = \
-                        run_data['spans'][step][0]['start_time'] \
-                        - run_data['spans'][steps[index - 1]][0]['end_time']
-                    time_between_spans.append(time_since_last_span)
-                # Add duration from spans
-                span_data = run_data['spans'][step]
-                span_df = pd.DataFrame(span_data)
-                span_df['duration'] = \
-                    span_df['end_time'] - span_df['start_time']
-                duration = span_df['duration'][0]
-                # Summarise metrics and spans by step
-                metrics_data = run_data['metrics'][step]
-                metrics_df = pd.DataFrame(metrics_data)
-                metrics_df['step'] = step
-                # Replace time with relative time
-                metrics_df['time_rel'] = \
-                    metrics_df['time'] - span_df['start_time'][0]
-                metrics_df = metrics_df.drop(columns=['time'])
-                metrics_df['time_bucket'] = \
-                    metrics_df['time_rel'].apply(lambda x: get_bucket(x, 5))
-                summarised_span_durations[step].append(duration)
-                summarised_metrics.append(metrics_df)
+            try:
+                if int(run_id) in config['exclusions']:
+                    logging.info(
+                        f'Skipping run {run_id} due to explicit exclusion'
+                    )
+                    continue
+                time_to_first_span = \
+                    run_data['spans'][first_span][0]['start_time'] \
+                    - run_data['marker']['start']
+                last_span_to_end = run_data['marker']['end'] \
+                    - run_data['spans'][last_span][0]['end_time']
+                total_duration = run_data['marker']['end'] \
+                    - run_data['marker']['start']
+                time_between_spans = []
+                for index, step in enumerate(steps):
+                    if index != 0:
+                        # Calculate time between spans
+                        time_since_last_span = \
+                            run_data['spans'][step][0]['start_time'] \
+                            - run_data['spans'][steps[index - 1]][0]['end_time']
+                        time_between_spans.append(time_since_last_span)
+                    # Add duration from spans
+                    span_data = run_data['spans'][step]
+                    span_df = pd.DataFrame(span_data)
+                    span_df['duration'] = \
+                        span_df['end_time'] - span_df['start_time']
+                    duration = span_df['duration'][0]
+                    # Summarise metrics and spans by step
+                    metrics_data = run_data['metrics'][step]
+                    metrics_df = pd.DataFrame(metrics_data)
+                    metrics_df['step'] = step
+                    # Replace time with relative time
+                    metrics_df['time_rel'] = \
+                        metrics_df['time'] - span_df['start_time'][0]
+                    metrics_df = metrics_df.drop(columns=['time'])
+                    metrics_df['time_bucket'] = \
+                        metrics_df['time_rel'].apply(lambda x: get_bucket(x, 5))
+                    summarised_span_durations[step].append(duration)
+                    summarised_metrics.append(metrics_df)
+            except Exception as e:
+                print(f"Error in {tool} run_id: {run_id}")
+                raise e
 
             # Summarise times
             time_between_spans = pd.Series(time_between_spans)
@@ -242,7 +246,7 @@ def generate_plots(summary, _):
     for metric in global_time_data:
         config = global_time_data[metric]['config']
         plot_data = global_time_data[metric]['data']
-        plot_data = plot_data[:2]
+        plot_data = plot_data
         plot_data = [pd.concat(data, ignore_index=True) for data in plot_data]
         generate_box_plot(
             plot_data,
@@ -394,7 +398,7 @@ def generate_bar_diff_plot(data, title, output_file):
             final_data.append(value)
             continue
         final_data.append((value - baseline) / baseline * 100)
-    plt.bar(TOOLS[:2], final_data, color=['blue', 'orange', 'green'])
+    plt.bar(TOOLS, final_data, color=['blue', 'orange', 'green'])
     plt.title(title)
     plt.ylabel('Relative Percent Diff (%)')
     plt.figtext(0.01, 0.01, '*Metaflow as baseline')

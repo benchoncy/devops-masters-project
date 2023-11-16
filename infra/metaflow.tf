@@ -77,7 +77,7 @@ module "metaflow-metadata-service" {
   database_password                = random_password.metaflow_db_password.result
   database_username                = aws_rds_cluster.metaflow.master_username
   datastore_s3_bucket_kms_key_arn  = aws_kms_key.metaflow_datastore.arn
-  fargate_execution_role_arn       = aws_iam_role.ecs_execution_role.arn
+  fargate_execution_role_arn       = module.metaflow-computation.ecs_execution_role_arn
   metaflow_vpc_id                  = module.vpc.vpc_id
   metadata_service_container_image = module.metaflow-common.default_metadata_service_container_image
   rds_master_instance_endpoint     = aws_rds_cluster_instance.metaflow.endpoint
@@ -89,6 +89,30 @@ module "metaflow-metadata-service" {
   standard_tags				       = {}
 }
 
+module "metaflow-computation" {
+  source = "outerbounds/metaflow/aws//modules/computation"
+  version = "0.9.4"
+
+  resource_prefix = local.metaflow_resource_prefix
+  resource_suffix = local.metaflow_resource_suffix
+
+  batch_type                                  = "ec2"
+  compute_environment_desired_vcpus           = 0
+  compute_environment_instance_types          = ["m5.large", "m5.xlarge"]
+  compute_environment_max_vcpus               = 8
+  compute_environment_min_vcpus               = 0
+  compute_environment_egress_cidr_blocks      = ["0.0.0.0/0"]
+  iam_partition                               = "aws"
+  metaflow_vpc_id                             = module.vpc.vpc_id
+  subnet1_id                                  = module.vpc.private_subnets[0]
+  subnet2_id                                  = module.vpc.private_subnets[1]
+  launch_template_http_endpoint               = "enabled"
+  launch_template_http_tokens                 = "optional"
+  launch_template_http_put_response_hop_limit = 2
+
+  standard_tags = {}
+}
+
 # Metaflow config
 data "aws_api_gateway_api_key" "metadata_api_key" {
   depends_on = [module.metaflow-metadata-service]
@@ -97,7 +121,7 @@ data "aws_api_gateway_api_key" "metadata_api_key" {
 
 data "aws_caller_identity" "current" {}
 
-resource "local_file" "metaflow_config_argo" {
+resource "local_file" "metaflow_config_k8s" {
   content  = <<-EOT
     {
       "METAFLOW_DATASTORE_SYSROOT_S3": "s3://${aws_s3_bucket.metaflow_store.id}/metaflow",
@@ -116,20 +140,24 @@ resource "local_file" "metaflow_config_argo" {
   filename = "${path.module}/config/config_k8s.json"
 }
 
-resource "local_file" "metaflow_config_airflow" {
-  content  = jsonencode({
-    "METAFLOW_DEFAULT_CONTAINER_REGISTRY"  = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/"
-    "METAFLOW_DEFAULT_CONTAINER_IMAGE"     = "benchoncy-${local.project_name}/metaflow:latest"
-    "METAFLOW_DATASTORE_SYSROOT_S3"        = "s3://${aws_s3_bucket.metaflow_store.arn}/metaflow"
-    "METAFLOW_DATATOOLS_S3ROOT"            = "s3://${aws_s3_bucket.metaflow_store.arn}/data"
-    "METAFLOW_SERVICE_URL"                 = module.metaflow-metadata-service.METAFLOW_SERVICE_URL
-    "METAFLOW_KUBERNETES_NAMESPACE"        = local.airflow_namespace
-    "METAFLOW_DEFAULT_DATASTORE"           = "s3"
-    "METAFLOW_DEFAULT_METADATA"            = "service"
-  })
-  filename = "${path.module}/config/config_airflow.json"
+resource "local_file" "metaflow_config_batch" {
+  content  = <<-EOT
+    {
+      "METAFLOW_DATASTORE_SYSROOT_S3": "s3://${aws_s3_bucket.metaflow_store.id}/metaflow",
+      "METAFLOW_DATATOOLS_S3ROOT": "s3://${aws_s3_bucket.metaflow_store.id}/data",
+      "METAFLOW_SERVICE_URL": "${module.metaflow-metadata-service.METAFLOW_SERVICE_URL}",
+      "METAFLOW_SERVICE_INTERNAL_URL": "${module.metaflow-metadata-service.METAFLOW_SERVICE_URL}",
+      "METAFLOW_SERVICE_AUTH_KEY": "${data.aws_api_gateway_api_key.metadata_api_key.value}",
+      "METAFLOW_BATCH_CONTAINER_REGISTRY": "${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/",
+      "METAFLOW_BATCH_CONTAINER_IMAGE": "benchoncy-${local.project_name}/metaflow:latest",
+      "METAFLOW_ECS_S3_ACCESS_IAM_ROLE": "${aws_iam_role.wf_execution_role.arn}",
+      "METAFLOW_BATCH_JOB_QUEUE": "${module.metaflow-computation.METAFLOW_BATCH_JOB_QUEUE}",
+      "METAFLOW_DEFAULT_DATASTORE": "s3",
+      "METAFLOW_DEFAULT_METADATA": "service"
+    }
+    EOT
+  filename = "${path.module}/config/config_batch.json"
 }
-
 
 # IAM Setup
 data "aws_iam_policy_document" "ecs_execution_role_assume_role" {
@@ -152,9 +180,9 @@ data "aws_iam_policy_document" "ecs_execution_role_assume_role" {
   }
 }
 
-resource "aws_iam_role" "ecs_execution_role" {
-  name = "${local.metaflow_resource_prefix}ecs-execution-role${local.metaflow_resource_suffix}"
-  description        = "Metaflow ECS Execution Role"
+resource "aws_iam_role" "wf_execution_role" {
+  name = "${local.metaflow_resource_prefix}wf-execution-role${local.metaflow_resource_suffix}"
+  description        = "Metaflow Workflow Execution Role"
   assume_role_policy = data.aws_iam_policy_document.ecs_execution_role_assume_role.json
 }
 
@@ -177,6 +205,12 @@ data "aws_iam_policy_document" "ecs_task_execution_policy" {
 
 resource "aws_iam_role_policy" "grant_ecs_access" {
   name   = "ecs_access"
-  role   = aws_iam_role.ecs_execution_role.name
+  role   = aws_iam_role.wf_execution_role.name
   policy = data.aws_iam_policy_document.ecs_task_execution_policy.json
+}
+
+resource "aws_iam_role_policy" "batch_workflow" {
+  name   = "workflow"
+  role   = aws_iam_role.wf_execution_role.name
+  policy = data.aws_iam_policy_document.workflow.json
 }

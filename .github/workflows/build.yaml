@@ -24,6 +24,8 @@ jobs:
         image:
           - name: metaflow
             file: Containerfile.metaflow
+          - name: metaflow-serivce
+            file: Containerfile.metaflow-service
           - name: airflow
             file: Containerfile.airflow
           - name: sagemaker

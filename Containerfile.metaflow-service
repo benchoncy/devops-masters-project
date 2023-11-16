@@ -1,0 +1,1 @@
+FROM netflixoss/metaflow_metadata_service:v2.3.0

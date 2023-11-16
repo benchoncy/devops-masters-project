@@ -29,10 +29,8 @@ def make_step(name, step, depends_on=[], run_id=0):
         name=name,
         processor=processor,
         depends_on=depends_on,
-        step_args=processor.run(
-            code=f"src/pipelines/workloads/{experiment_id}/step_{step}.py",
-            arguments=["--run-id", str(run_id)],
-        ),
+        job_arguments=["--run-id", str(run_id)],
+        code=f"src/pipelines/workloads/{experiment_id}/step_{step}.py",
     )
 
 
@@ -47,9 +45,7 @@ def build_pipeline(run_id):
     )
     pipeline.upsert(
         role_arn=role,
-        parallelism_config=ParallelismConfiguration(
-            max_parallel_execution_steps=1
-        ),
+        parallelism_config={"MaxParallelExecutionSteps": 1},
     )
     return pipeline
 

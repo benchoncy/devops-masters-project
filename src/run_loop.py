@@ -21,6 +21,17 @@ class Runner:
             create_marker("end", f"{experiment}/metaflow/{run_id}")
             index += 1
 
+    def metaflow_batch(self, experiment, start=0, iterations=None):
+        index = start
+        while index < (start+iterations) if iterations else True:
+            run_id = index
+            command = f"python -m src.pipelines.workloads.{experiment}.flow_batch " \
+                      f"run --with batch --run_id {run_id}"
+            create_marker("start", f"{experiment}/metaflow_batch/{run_id}")
+            os.system(command)
+            create_marker("end", f"{experiment}/metaflow_batch/{run_id}")
+            index += 1
+
     def airflow(self, experiment, start=0, iterations=None):
         kube_exec_airflow(f"airflow dags unpause {experiment}")
         index = start
