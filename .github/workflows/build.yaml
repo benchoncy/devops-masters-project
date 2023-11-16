@@ -24,7 +24,7 @@ jobs:
         image:
           - name: metaflow
             file: Containerfile.metaflow
-          - name: metaflow-serivce
+          - name: metaflow-service
             file: Containerfile.metaflow-service
           - name: airflow
             file: Containerfile.airflow
