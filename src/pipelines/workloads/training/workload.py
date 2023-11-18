@@ -58,7 +58,7 @@ def train_model(tool):
     optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 
     # Train the network
-    train_loop(epochs=2, trainloader=trainloader, net=net, criterion=criterion,
+    train_loop(epochs=4, trainloader=trainloader, net=net, criterion=criterion,
                optimizer=optimizer)
     print('Finished Training')
 
@@ -70,8 +70,7 @@ def train_loop(epochs, trainloader, net, criterion, optimizer):
     for epoch in tqdm(range(epochs), desc="Training", position=0):  # loop over the dataset multiple times
 
         running_loss = 0.0
-        for i, data in tqdm(enumerate(trainloader, 0), desc="Epoch",
-                            position=1, leave=False):
+        for i, data in tqdm(enumerate(trainloader, 0), desc="Epoch", position=1):
             # get the inputs; data is a list of [inputs, labels]
             inputs, labels = data
 
