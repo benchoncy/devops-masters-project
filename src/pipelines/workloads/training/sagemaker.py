@@ -31,7 +31,6 @@ def make_step(name, step, depends_on=[], run_id=0):
         name=name,
         estimator=estimator,
         depends_on=depends_on,
-        inputs={},  # No inputs
     )
 
 

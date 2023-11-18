@@ -67,10 +67,12 @@ def train_model(tool):
 
 
 def train_loop(epochs, trainloader, net, criterion, optimizer):
-    for epoch in tqdm(range(epochs), desc="Training", position=0):  # loop over the dataset multiple times
-
+    progress_bar = tqdm(total=(epochs * len(trainloader)), desc="Training", position=0)
+    for epoch in range(epochs):  # loop over the dataset multiple times
+        progress_bar.write(f"Epoch {epoch + 1}")
         running_loss = 0.0
-        for i, data in tqdm(enumerate(trainloader, 0), desc="Epoch", position=1):
+        for i, data in enumerate(trainloader, 0):
+            progress_bar.update(1)
             # get the inputs; data is a list of [inputs, labels]
             inputs, labels = data
 
