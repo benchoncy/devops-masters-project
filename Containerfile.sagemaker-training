@@ -1,0 +1,17 @@
+FROM 763104351884.dkr.ecr.us-east-1.amazonaws.com/pytorch-training:2.1.0-cpu-py310-ubuntu20.04-sagemaker
+
+# Install poetry
+RUN pip install poetry
+
+# Copy poetry.lock and pyproject.toml
+COPY poetry.lock pyproject.toml ./
+# COPY src ./src
+
+# RUN poetry build
+
+# Install dependencies
+RUN poetry config virtualenvs.create false \
+    && poetry install --only main
+# RUN pip install dist/*.whl
+
+RUN rm -rf poetry.lock pyproject.toml
