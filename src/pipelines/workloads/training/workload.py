@@ -132,5 +132,5 @@ def step_2_validate(tool, run_id):
               run_id=run_id, step_id="validate")
     def validate():
         print("Starting validation")
-        validate_model()
+        validate_model(tool)
     validate()
