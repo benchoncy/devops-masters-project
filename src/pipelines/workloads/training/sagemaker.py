@@ -18,7 +18,6 @@ def make_step(name, step, depends_on=[], run_id=0):
     estimator = PyTorch(
         image_uri=sagemaker_image,
         entry_point=f"src/pipelines/workloads/{experiment_id}/step_{step}.py",
-        source_dir=".",
         role=role,
         instance_count=1,
         instance_type="ml.m5.large",  # 2 vCPU + 8 GiB
