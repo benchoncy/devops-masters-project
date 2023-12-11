@@ -1,12 +1,13 @@
 from src.pipelines.utils import S3Iterator
 import json
 import pandas as pd
+import numpy as np
 import logging
 from collections import defaultdict
 import matplotlib.pyplot as plt
 import os
 from tqdm import tqdm
-from scipy.stats import f_oneway, kstest, kruskal, ttest_ind
+from scipy.stats import f_oneway, tukey_hsd
 
 
 S3_BUCKET_NAME = 'bstuart-masters-project-logs'
@@ -15,7 +16,11 @@ EXPERIMENTS = {
     "captioning": {
         "steps": ["load", "inference"],
         "exclusions": [],
-    }
+    },
+    "training": {
+        "steps": ["train", "validate"],
+        "exclusions": [],
+    },
 }
 TOOLS = [
     {'id': 'metaflow', 'name': 'Metaflow (K8s)'},
@@ -35,8 +40,8 @@ VALUE_TO_DISPLAY = {
 METRICS = [
     'cpu_percent',
     'memory_percent',
-    'disk_percent',
-    'network_iops'
+    # 'disk_percent',
+    # 'network_iops'
 ]
 
 TMP_FILE = '/tmp/exp_data.json'
@@ -203,8 +208,7 @@ def summarise_experiment_data(data, config):
                     summarised_span_durations[step].append(duration)
                     summarised_metrics.append(metrics_df)
             except Exception as e:
-                print(f"Error in {tool} run_id: {run_id}")
-                print(e)
+                logging.error(f'Error summarising run {run_id}: {e}')
                 continue
 
             raw_data[tool]['times']['time_to_first_span'].append(time_to_first_span)
@@ -440,47 +444,88 @@ def generate_bar_plot(data, title, y_axis_label, output_file):
 
 def generate_stats(data):
     logging.info('Generating stats...')
+    global_stats = {
+        'total_duration': [[] for _ in range(len(TOOL_IDS))],
+        'time_to_first_span': [[] for _ in range(len(TOOL_IDS))],
+        'last_span_to_end': [[] for _ in range(len(TOOL_IDS))],
+        'time_between_spans': [[] for _ in range(len(TOOL_IDS))],
+    }
     for experiment, experiment_data in data.items():
         experiment_steps = EXPERIMENTS[experiment]['steps']
         for step in experiment_steps:
             generate_step_stats(step, experiment, experiment_data)
-        for time in ['time_to_first_span', 'last_span_to_end', 'total_duration', 'time_between_spans']:
-            print('---------------------')
-            print(f'{experiment} / {time}')
-            print('---------------------')
-            data = [experiment_data[tool]['times'][time] for tool in TOOL_IDS]
-            calculate_stats(data)
+        for key in global_stats.keys():
+            for index, tool in enumerate(TOOL_IDS):
+                global_stats[key][index] += experiment_data[tool]['times'][key]
+    for key in global_stats.keys():
+        #print('---------------------')
+        #print(f'Global / {key}')
+        #print('---------------------')
+        calculate_stats('Global', key, global_stats[key])
 
 
-def calculate_stats(tool_values):
+def shorten_metric_name(name):
+    if name == 'memory_percent':
+        return 'memory'
+    if name == 'cpu_percent':
+        return 'cpu'
+    if name == 'network_iops':
+        return 'network'
+    if name == 'disk_percent':
+        return 'disk'
+    if name == 'duration':
+        return 'duration'
+    if name == 'time_to_first_span':
+        return 'startup'
+    if name == 'last_span_to_end':
+        return 'cleanup'
+    if name == 'time_between_spans':
+        return 'time between steps'
+    if name == 'total_duration':
+        return 'total duration'
+    return name
+
+
+def shorten_tool_name(name):
+    if name == 'Metaflow (K8s)':
+        return 'MF(K8s)'
+    if name == 'Metaflow (Batch)':
+        return 'MF(Batch)'
+    if name == 'Airflow (K8s)':
+        return 'AF(K8s)'
+    if name == 'SageMaker':
+        return 'SM'
+    return name
+
+def calculate_stats(workload, metric, tool_values):
+    metric = shorten_metric_name(metric)
+    workload = workload[0].upper() + workload[1:]
     _, pval = f_oneway(*tool_values)
-    _, pval = kruskal(*tool_values)  # Non-parametric
-    print(f'f_oneway: p-value: {pval}')
-    print(f'kruskal: p-value: {pval}')
+    # print(f'f_oneway: p-value: {pval}')
+    res = tukey_hsd(*tool_values)
+    # print(f'tukey_hsd: {res}')
+    print(f'{workload} & {metric} & one-way ANOVA & {pval:.5f} \\\\')
     for index, tool in enumerate(TOOL_NAMES):
-        _, pval = kstest(tool_values[index], 'norm')
-        print(f'kstest: {tool} - p-value: {pval}')
-        for jndex, other_tool in enumerate(TOOL_NAMES):
-            if jndex <= index:
+        tname = shorten_tool_name(tool)
+        for index2, tool2 in enumerate(TOOL_NAMES):
+            tname2 = shorten_tool_name(tool2)
+            if index2 <= index:
                 continue
-            max_len = min(len(tool_values[index]), len(tool_values[jndex]))
-            _, pval = ttest_ind(tool_values[index][:max_len], tool_values[jndex][:max_len])
-            print(f'ttest_ind: {tool} vs {other_tool} - p-value: {pval}')
-            _, pval = kruskal(tool_values[index], tool_values[jndex])
-            print(f'kruskal: {tool} vs {other_tool} - p-value: {pval}')
+            pval = res.pvalue[index][index2]
+            print(f'{workload} & {metric} & Tukey {tname} vs {tname2} & {pval:.5f} \\\\')
 
 
 def generate_step_stats(step, experiment, data):
-    print('---------------------')
-    print(f'Generating stats for {experiment} / {step}...')
+    #print('---------------------')
+    #print(f'Generating stats for {experiment} / {step}...')
     for metric in METRICS + ['duration']:
         metric_values = []
         for tool in TOOL_IDS:
             metric_values.append(data[tool][step][metric])
-        print('---------------------')
-        print(f'{experiment} / {step} / {metric}')
-        print('---------------------')
-        calculate_stats(metric_values)
+        #print('---------------------')
+        #print(f'{experiment} / {step} / {metric}')
+        #print('---------------------')
+        calculate_stats(f'{experiment} - {step}', metric, metric_values)
 
 
 if __name__ == '__main__':
