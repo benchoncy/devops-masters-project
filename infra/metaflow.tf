@@ -98,7 +98,7 @@ module "metaflow-computation" {
 
   batch_type                                  = "ec2"
   compute_environment_desired_vcpus           = 0
-  compute_environment_instance_types          = ["m5.large", "m5.xlarge"]
+  compute_environment_instance_types          = ["m5.xlarge"]
   compute_environment_max_vcpus               = 8
   compute_environment_min_vcpus               = 0
   compute_environment_egress_cidr_blocks      = ["0.0.0.0/0"]
@@ -157,6 +157,23 @@ resource "local_file" "metaflow_config_batch" {
     }
     EOT
   filename = "${path.module}/config/config_batch.json"
+}
+
+resource "local_file" "metaflow_config_batch_testing" {
+  content  = <<-EOT
+    {
+      "METAFLOW_DATASTORE_SYSROOT_S3": "s3://${aws_s3_bucket.metaflow_store.id}/metaflow",
+      "METAFLOW_DATATOOLS_S3ROOT": "s3://${aws_s3_bucket.metaflow_store.id}/data",
+      "METAFLOW_SERVICE_URL": "${module.metaflow-metadata-service.METAFLOW_SERVICE_URL}",
+      "METAFLOW_SERVICE_INTERNAL_URL": "${module.metaflow-metadata-service.METAFLOW_SERVICE_URL}",
+      "METAFLOW_SERVICE_AUTH_KEY": "${data.aws_api_gateway_api_key.metadata_api_key.value}",
+      "METAFLOW_ECS_S3_ACCESS_IAM_ROLE": "${aws_iam_role.wf_execution_role.arn}",
+      "METAFLOW_BATCH_JOB_QUEUE": "${module.metaflow-computation.METAFLOW_BATCH_JOB_QUEUE}",
+      "METAFLOW_DEFAULT_DATASTORE": "s3",
+      "METAFLOW_DEFAULT_METADATA": "service"
+    }
+    EOT
+  filename = "${path.module}/config/config_batch_testing.json"
 }
 
 # IAM Setup
