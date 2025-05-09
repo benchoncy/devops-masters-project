@@ -1,12 +1,7 @@
-# devops-masters-project
+# DevOps Masters Project: Machine learning pipelines
 
-Datasets:
-- images: [Household Objects](https://ieee-dataport.org/open-access/annotated-image-dataset-household-objects-robofeihome-team)
+This repository holds the code and implementation of my master's project, which compares the performance of ML pipelines using various orchestrators and compute layers.
 
-# Running Metaflow jobs
+The orchestration tools used included Metaflow, Airflow and SageMaker processing jobs.
 
-1. `make setup`
-2. Run flow on select config:
-```
-METAFLOW_PROFILE=mstr_k8s; python -m {path/to/flow.py} run
-```
+Report: [Thesis_output.pdf](https://github.com/user-attachments/files/20119264/TU_Dublin_MSc_HDip_Undergraduate_Thesis_Template.pdf)
